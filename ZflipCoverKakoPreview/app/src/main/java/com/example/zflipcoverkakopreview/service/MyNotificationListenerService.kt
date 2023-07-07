@@ -1,29 +1,20 @@
 package com.example.zflipcoverkakopreview.service
 
 import android.app.Notification
-import android.app.Service
-import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
-import android.os.IBinder
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
-import android.util.Log
-import android.widget.ImageView
-import android.widget.Toast
-import androidx.core.graphics.drawable.toBitmap
-import androidx.room.Transaction
-import com.example.zflipcoverkakopreview.MainActivity
-import com.example.zflipcoverkakopreview.R
-import com.example.zflipcoverkakopreview.adapter.TalkRecyclerViewAdapter
-import com.example.zflipcoverkakopreview.databinding.ActivityMainBinding
 import com.example.zflipcoverkakopreview.db.dao.RoomDao
 import com.example.zflipcoverkakopreview.db.dao.TalkDao
 import com.example.zflipcoverkakopreview.db.database.AppDatabase
 import com.example.zflipcoverkakopreview.db.entity.Room
 import com.example.zflipcoverkakopreview.db.entity.Talk
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.lang.Exception
 import java.time.LocalDateTime
 
@@ -86,10 +77,12 @@ class MyNotificationListenerService : NotificationListenerService() {
 
         if(packName != "kakao" || sbn?.id!=2)
             return
-        Thread{
-            var room = getUpdatedRoom(roomName, chat,now)
-            addTalk(room.id, userName!!, chat, now)
-        }.start()
+        CoroutineScope(Dispatchers.IO).launch {
+            appDB.runInTransaction {
+                var room = getUpdatedRoom(roomName, chat, now)
+                addTalk(room.id, userName!!, chat, now)
+            }
+        }
 
     }
 
@@ -109,7 +102,6 @@ class MyNotificationListenerService : NotificationListenerService() {
         return bitmap
     }
 
-    //@Transaction
     private fun getUpdatedRoom(roomName : String, chat : String, now : LocalDateTime) : Room{
         var room : Room
         room = roomDao.getByRoomName(roomName)
