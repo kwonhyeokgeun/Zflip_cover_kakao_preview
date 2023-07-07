@@ -144,17 +144,17 @@ class MyNotificationListenerService : NotificationListenerService() {
         val subText = extras?.getCharSequence(Notification.EXTRA_SUB_TEXT)
         val smallIcon = notification?.smallIcon
         val largeIcon = notification?.getLargeIcon()
-        Log.d("카카오 제거 Log","onNotificationPosted ~ " +
+        /*Log.d("카카오 제거 Log","onNotificationPosted ~ " +
                 " packageName: " + sbn?.packageName +
                 " id: " + sbn?.id +
                 " postTime: " + sbn?.postTime +
                 " title: " + title +  //name
                 " text : " + text +  //chat
-                " subText: " + subText) //roomName
+                " subText: " + subText) //roomName*/
         val packName = (sbn?.packageName!!).split(".")[1]
         var roomName = subText.toString()
         if(packName == "kakao" && sbn?.id==2){
-            Log.d("카카오 알림제거", roomName)
+            //Log.d("카카오 알림제거", roomName)
             Thread{
                 roomDao.setReadByRoomName(roomName)
             }.start()

@@ -51,7 +51,7 @@ class RoomActivity : AppCompatActivity() {
 
     }
     override fun onStop(){
-        Log.d("카카오 나감",roomId.toString())
+        //Log.d("카카오 나감",roomId.toString())
         Thread {
             roomDao.setReadById(roomId)
         }.start()
@@ -98,7 +98,7 @@ class RoomActivity : AppCompatActivity() {
             if(!isCreated){
                 var newPosition = talkList.size-1 -newCnt
                 if(newPosition<0) newPosition = 0
-                Log.d("카카오 새톡", newPosition.toString())
+                //Log.d("카카오 새톡", newPosition.toString())
                 layoutManager?.let {
                     it.scrollToPositionWithOffset(newPosition,0)
                 }
