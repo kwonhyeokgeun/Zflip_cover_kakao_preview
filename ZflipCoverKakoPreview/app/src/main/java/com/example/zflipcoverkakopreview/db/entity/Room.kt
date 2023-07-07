@@ -2,10 +2,11 @@ package com.example.zflipcoverkakopreview.db.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import java.time.LocalDateTime
 
-@Entity
+@Entity(indices = [Index(value = ["room_name"], unique = true)])
 data class Room (
     @PrimaryKey(autoGenerate = true)
     val id:Long=0,

@@ -107,7 +107,13 @@ class MyNotificationListenerService : NotificationListenerService() {
         room = roomDao.getByRoomName(roomName)
 
         if(room == null){
-            val roomId = roomDao.insert(Room(0, roomName, chat, now,1))
+            var roomId:Long =0L
+            try{
+                roomId = roomDao.insert(Room(0, roomName, chat, now,1))
+            }catch (e:Exception){
+                roomId = roomDao.getByRoomName(roomName).id
+            }
+
             room = roomDao.getByRoomId(roomId)
             //Log.d("카카오 새룸", "${roomId} ${room}") //룸 id확인하기
         }else{
