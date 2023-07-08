@@ -151,6 +151,12 @@ class MyNotificationListenerService : NotificationListenerService() {
                 " subText: " + subText) //roomName*/
         val packName = (sbn?.packageName!!).split(".")[1]
         var roomName = subText.toString()
+        var isGroup=false
+        if (roomName =="null") {
+            val userName = title.toString()
+            roomName = userName.toString()
+            isGroup=true
+        }
         if(packName == "kakao" && sbn?.id==2){
             //Log.d("카카오 알림제거", roomName)
             Thread{
