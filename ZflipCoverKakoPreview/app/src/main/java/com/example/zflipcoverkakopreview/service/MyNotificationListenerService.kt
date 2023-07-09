@@ -7,11 +7,13 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
+import android.util.Log
 import com.example.zflipcoverkakopreview.db.dao.RoomDao
 import com.example.zflipcoverkakopreview.db.dao.TalkDao
 import com.example.zflipcoverkakopreview.db.database.AppDatabase
 import com.example.zflipcoverkakopreview.db.entity.Room
 import com.example.zflipcoverkakopreview.db.entity.Talk
+import com.example.zflipcoverkakopreview.eventbus.NotifyEventBus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -32,9 +34,9 @@ class MyNotificationListenerService : NotificationListenerService() {
         super.onNotificationPosted(sbn)
         val notification = sbn?.notification
         val extras = sbn?.notification?.extras
-        val title = extras?.getString(Notification.EXTRA_TITLE)
-        val text = extras?.getCharSequence(Notification.EXTRA_TEXT)
-        val subText = extras?.getCharSequence(Notification.EXTRA_SUB_TEXT)
+        val title = extras?.getCharSequence(Notification.EXTRA_TITLE)?.toString()
+        val text = extras?.getCharSequence(Notification.EXTRA_TEXT)?.toString()
+        val subText = extras?.getCharSequence(Notification.EXTRA_SUB_TEXT)?.toString()
 
         val smallIcon = notification?.smallIcon
         val largeIcon = notification?.getLargeIcon()
@@ -54,7 +56,7 @@ class MyNotificationListenerService : NotificationListenerService() {
 
 
 
-        val userName = title.toString()
+        val userName = title
         var roomName = subText.toString()
         var isGroup=false
         if (roomName =="null") {
@@ -72,8 +74,9 @@ class MyNotificationListenerService : NotificationListenerService() {
                 " title: " + title +  //name
                 " text : " + text +  //chat
                 " subText: " + subText) //roomName*/
-
-        val packName = (sbn?.packageName!!).split(".")[1]
+        val packNameList = (sbn?.packageName!!).split(".")
+        if (packNameList.size<2) return
+        val packName = packNameList[1]
 
         if(packName != "kakao" || sbn?.id!=2)
             return
@@ -82,6 +85,7 @@ class MyNotificationListenerService : NotificationListenerService() {
                 var room = getUpdatedRoom(roomName, chat, now)
                 addTalk(room.id, userName!!, chat, now)
             }
+            NotifyEventBus.notifyTalkChanged()
         }
 
     }
@@ -137,9 +141,9 @@ class MyNotificationListenerService : NotificationListenerService() {
         super.onNotificationRemoved(sbn, rankingMap)
         val notification = sbn?.notification
         val extras = sbn?.notification?.extras
-        val title = extras?.getString(Notification.EXTRA_TITLE)
-        val text = extras?.getCharSequence(Notification.EXTRA_TEXT)
-        val subText = extras?.getCharSequence(Notification.EXTRA_SUB_TEXT)
+        val title = extras?.getString(Notification.EXTRA_TITLE)?.toString()
+        val text = extras?.getCharSequence(Notification.EXTRA_TEXT)?.toString()
+        val subText = extras?.getCharSequence(Notification.EXTRA_SUB_TEXT)?.toString()
         val smallIcon = notification?.smallIcon
         val largeIcon = notification?.getLargeIcon()
         /*Log.d("카카오 제거 Log","onNotificationPosted ~ " +
@@ -158,10 +162,10 @@ class MyNotificationListenerService : NotificationListenerService() {
             isGroup=true
         }
         if(packName == "kakao" && sbn?.id==2){
-            //Log.d("카카오 알림제거", roomName)
-            Thread{
+            CoroutineScope(Dispatchers.IO).launch {
                 roomDao.setReadByRoomName(roomName)
-            }.start()
+                NotifyEventBus.notifyTalkChanged()
+            }
         }
 
     }

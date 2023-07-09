@@ -6,6 +6,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.NotificationManagerCompat
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -16,6 +18,11 @@ import com.example.zflipcoverkakopreview.db.dao.RoomDao
 import com.example.zflipcoverkakopreview.db.dao.TalkDao
 import com.example.zflipcoverkakopreview.db.database.AppDatabase
 import com.example.zflipcoverkakopreview.db.entity.Room
+import com.example.zflipcoverkakopreview.eventbus.NotifyEventBus
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
 class MainActivity : AppCompatActivity() , OnRoomClickListener{
@@ -25,6 +32,9 @@ class MainActivity : AppCompatActivity() , OnRoomClickListener{
     private lateinit var talkDao : TalkDao
     private lateinit var roomList : ArrayList<Room>
     private lateinit var adapter : RoomRecyclerViewAdapter
+    private lateinit var scope : CoroutineScope
+    private val eventBus = NotifyEventBus
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -41,16 +51,20 @@ class MainActivity : AppCompatActivity() , OnRoomClickListener{
             startActivity(intent)
         }
 
+        setRoomRecyclerView()
         deleteOldTalk()
+
+
     }
 
     private fun deleteOldTalk(){
-        val twoDaysAgo = LocalDateTime.now().minusDays(2)
         Thread{
+            val twoDaysAgo = LocalDateTime.now().minusDays(2)
             talkDao.deleteOldTalk(twoDaysAgo)
             roomDao.deleteOldRoom(twoDaysAgo)
         }.start()
     }
+
     private fun permissionGrantred(): Boolean {
         val sets = NotificationManagerCompat.getEnabledListenerPackages(this)
         return sets != null && sets.contains(packageName)
@@ -58,26 +72,44 @@ class MainActivity : AppCompatActivity() , OnRoomClickListener{
 
     override fun onResume() {
         super.onResume()
+
+        scope = MainScope()
+        scope.launch { //이벤트버스 구독 등록
+            eventBus.notifyEvents.collect {
+                updateRoomRecyclerView() //채팅방 업데이트
+            }
+        }
+
+
         Handler(Looper.getMainLooper()).postDelayed({
-            getRoomList()
+            updateRoomRecyclerView()
         }, 500)
         //Toast.makeText(this, "리쥬매",Toast.LENGTH_SHORT).show()
     }
 
-    private fun getRoomList(){
-        Thread {
-            //roomDao.insert(Room(0,"방2", "하하헤sdfdsfdsfdsfdsfdsfdsfdsfdfdsfds호홓ㅇㄹㄴㅇㄹㅇㄴㄹㄴㅇㄹㅇㄴㄹㅇㄹㅇㄴㄹㄴㅇㄹㅇㄴㄹ", LocalDateTime.now(),0))
-            roomList = ArrayList(roomDao.getAll())
-            setRoomRecyclerView()
-        }.start()
+    override fun onPause() {
+        super.onPause()
+        scope.cancel() //이벤트버스 구독 취소
     }
 
+
     private fun setRoomRecyclerView(){
+        roomList = ArrayList()
         runOnUiThread {
             adapter = RoomRecyclerViewAdapter(roomList, this)
             binding.rvRoomList.adapter = adapter
             binding.rvRoomList.layoutManager = LinearLayoutManager(this)
         }
+    }
+
+    private fun updateRoomRecyclerView(){
+        Thread {
+            roomList.clear()
+            roomList.addAll(roomDao.getAll())
+            runOnUiThread {
+                adapter.notifyDataSetChanged()
+            }
+        }.start()
     }
 
     override fun onClick(id : Long, newCnt : Int) {
