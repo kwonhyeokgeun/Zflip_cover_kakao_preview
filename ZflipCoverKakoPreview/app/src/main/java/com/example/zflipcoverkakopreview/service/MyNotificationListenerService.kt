@@ -7,13 +7,12 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
-import android.util.Log
 import com.example.zflipcoverkakopreview.db.dao.RoomDao
 import com.example.zflipcoverkakopreview.db.dao.TalkDao
 import com.example.zflipcoverkakopreview.db.database.AppDatabase
 import com.example.zflipcoverkakopreview.db.entity.Room
 import com.example.zflipcoverkakopreview.db.entity.Talk
-import com.example.zflipcoverkakopreview.eventbus.NotifyEventBus
+import com.example.zflipcoverkakopreview.eventbus.NotifyRoomEventBus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -85,7 +84,7 @@ class MyNotificationListenerService : NotificationListenerService() {
                 var room = getUpdatedRoom(roomName, chat, now)
                 addTalk(room.id, userName!!, chat, now)
             }
-            NotifyEventBus.notifyTalkChanged()
+            NotifyRoomEventBus.notifyRoomChanged()
         }
 
     }
@@ -164,7 +163,7 @@ class MyNotificationListenerService : NotificationListenerService() {
         if(packName == "kakao" && sbn?.id==2){
             CoroutineScope(Dispatchers.IO).launch {
                 roomDao.setReadByRoomName(roomName)
-                NotifyEventBus.notifyTalkChanged()
+                NotifyRoomEventBus.notifyRoomChanged()
             }
         }
 

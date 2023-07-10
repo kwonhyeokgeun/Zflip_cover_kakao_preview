@@ -6,8 +6,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.NotificationManagerCompat
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -18,7 +16,7 @@ import com.example.zflipcoverkakopreview.db.dao.RoomDao
 import com.example.zflipcoverkakopreview.db.dao.TalkDao
 import com.example.zflipcoverkakopreview.db.database.AppDatabase
 import com.example.zflipcoverkakopreview.db.entity.Room
-import com.example.zflipcoverkakopreview.eventbus.NotifyEventBus
+import com.example.zflipcoverkakopreview.eventbus.NotifyRoomEventBus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
@@ -33,7 +31,7 @@ class MainActivity : AppCompatActivity() , OnRoomClickListener{
     private lateinit var roomList : ArrayList<Room>
     private lateinit var adapter : RoomRecyclerViewAdapter
     private lateinit var scope : CoroutineScope
-    private val eventBus = NotifyEventBus
+    private val eventBus = NotifyRoomEventBus
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
