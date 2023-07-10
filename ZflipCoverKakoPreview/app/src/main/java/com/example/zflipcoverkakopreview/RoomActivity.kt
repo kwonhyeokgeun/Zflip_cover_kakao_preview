@@ -73,8 +73,15 @@ class RoomActivity : AppCompatActivity() {
         scope.launch { //이벤트버스 구독 등록
             eventBus.notifyEvents.collect {
                 if(it.roomId ==roomId){
+                    val lastVisibleItemPosition = layoutManager.findLastCompletelyVisibleItemPosition()
+                    val itemCount = adapter.itemCount
                     talkList.add(it)
                     adapter.notifyDataSetChanged()
+                    if(itemCount-1 == lastVisibleItemPosition) {//스크롤이 아래면
+                        layoutManager.scrollToPositionWithOffset(itemCount,0)
+                    }else{
+
+                    }
                 }
             }
         }
