@@ -13,6 +13,7 @@ import com.example.zflipcoverkakopreview.db.database.AppDatabase
 import com.example.zflipcoverkakopreview.db.entity.Room
 import com.example.zflipcoverkakopreview.db.entity.Talk
 import com.example.zflipcoverkakopreview.eventbus.NotifyRoomEventBus
+import com.example.zflipcoverkakopreview.eventbus.NotifyTalkEventBus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -80,11 +81,16 @@ class MyNotificationListenerService : NotificationListenerService() {
         if(packName != "kakao" || sbn?.id!=2)
             return
         CoroutineScope(Dispatchers.IO).launch {
+            var talk : Talk? = null
             appDB.runInTransaction {
                 var room = getUpdatedRoom(roomName, chat, now)
-                addTalk(room.id, userName!!, chat, now)
+                val talkId = addTalk(room.id, userName!!, chat, now)
+                talk = talkDao.getByTalkId(talkId)
             }
             NotifyRoomEventBus.notifyRoomChanged()
+            talk?.let {
+                NotifyTalkEventBus.notifyTalkChanged(it)
+            }
         }
 
     }
@@ -128,10 +134,10 @@ class MyNotificationListenerService : NotificationListenerService() {
         return room
     }
 
-    private fun addTalk(roomId : Long, userName : String, chat : String, now : LocalDateTime){
+    private fun addTalk(roomId : Long, userName : String, chat : String, now : LocalDateTime):Long{
         val talk = Talk(0, roomId, userName, chat, now)
 
-        talkDao.insert(talk)
+        return talkDao.insert(talk)
         //val talkList2 = talkDao.getAllByRoomId(roomId)
 
     }

@@ -9,10 +9,10 @@ import java.time.LocalDateTime
 @Dao
 interface TalkDao {
     @Insert
-    fun insert(talk : Talk)
+    fun insert(talk : Talk) : Long
 
-    //@Query("Select * from talk where roomId = :roomId order by id desc limit 1")
-    //fun getRecentByRoomId(roomId : Long) : Talk  //왜만들었지?
+    @Query("Select * from talk where id = :talkId")
+    fun getByTalkId(talkId : Long) : Talk
 
     @Query("SELECT * FROM TALK")
     fun getAll():List<Talk>

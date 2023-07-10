@@ -3,6 +3,7 @@ package com.example.zflipcoverkakopreview
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView.LayoutManager
 import com.example.zflipcoverkakopreview.adapter.TalkRecyclerViewAdapter
@@ -12,6 +13,12 @@ import com.example.zflipcoverkakopreview.db.dao.RoomDao
 import com.example.zflipcoverkakopreview.db.dao.TalkDao
 import com.example.zflipcoverkakopreview.db.database.AppDatabase
 import com.example.zflipcoverkakopreview.db.entity.Talk
+import com.example.zflipcoverkakopreview.eventbus.NotifyRoomEventBus
+import com.example.zflipcoverkakopreview.eventbus.NotifyTalkEventBus
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 
 class RoomActivity : AppCompatActivity() {
     private lateinit var binding : ActivityRoomBinding
@@ -25,6 +32,8 @@ class RoomActivity : AppCompatActivity() {
     private var isCreated : Boolean = false
     private lateinit var layoutManager:LinearLayoutManager
     private var screenWidth : Int=0
+    private lateinit var scope : CoroutineScope
+    private val eventBus = NotifyTalkEventBus
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityRoomBinding.inflate(layoutInflater)
@@ -60,12 +69,20 @@ class RoomActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        scope = MainScope()
+        scope.launch { //이벤트버스 구독 등록
+            eventBus.notifyEvents.collect {
+                if(it.roomId ==roomId){
+                    talkList.add(it)
+                    adapter.notifyDataSetChanged()
+                }
+            }
+        }
+    }
 
-//        Handler(Looper.getMainLooper()).postDelayed({
-//            Toast.makeText(this, "채팅수 : ${talkList.size}", Toast.LENGTH_SHORT).show()
-//        }, 1000)
-
-
+    override fun onPause() {
+        super.onPause()
+        scope.cancel() //이벤트버스 구독 취소
     }
 
     private fun setOnClickIbBottom(){
