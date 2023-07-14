@@ -3,8 +3,10 @@ package com.example.zflipcoverkakopreview
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.LayoutManager
 import com.example.zflipcoverkakopreview.adapter.TalkRecyclerViewAdapter
 import com.example.zflipcoverkakopreview.databinding.ActivityRoomBinding
@@ -56,8 +58,6 @@ class RoomActivity : AppCompatActivity() {
         layoutManager = LinearLayoutManager(this)
         getTalkList()
 
-
-
     }
     override fun onStop(){
         //Log.d("카카오 나감",roomId.toString())
@@ -80,11 +80,24 @@ class RoomActivity : AppCompatActivity() {
                     if(itemCount-1 == lastVisibleItemPosition) {//스크롤이 아래면
                         layoutManager.scrollToPositionWithOffset(itemCount,0)
                     }else{
-
+                        binding.tvNew.visibility = View.VISIBLE
                     }
                 }
             }
         }
+        updateTalkList()
+
+    }
+
+    private fun updateTalkList(){
+        if(talkList.size<=0) return
+        Thread{
+            val lastId = talkList.get(talkList.size-1).id
+            talkList.addAll(talkDao.getNewTalk(roomId, lastId))
+            runOnUiThread {
+                adapter.notifyDataSetChanged()
+            }
+        }.start()
     }
 
     override fun onPause() {
@@ -102,7 +115,6 @@ class RoomActivity : AppCompatActivity() {
     private fun getTalkList(){
         Thread{
             talkList = ArrayList(talkDao.getAllByRoomId(roomId))
-            //talkList = ArrayList(talkDao.getAll())
             if(talkList == null ||talkList.size ==0) {
                 return@Thread
             }
@@ -118,16 +130,27 @@ class RoomActivity : AppCompatActivity() {
             layoutManager.stackFromEnd = true
             binding.rvTalkList.layoutManager = layoutManager
 
-            //처음한번만 새톡으로 이동
-            if(!isCreated){
-                var newPosition = talkList.size-1 -newCnt
-                if(newPosition<0) newPosition = 0
-                //Log.d("카카오 새톡", newPosition.toString())
-                layoutManager?.let {
-                    it.scrollToPositionWithOffset(newPosition,0)
-                }
-                isCreated = true
+            //새톡 위치로 이동
+            var newPosition = talkList.size-1 -newCnt
+            if(newPosition<0) newPosition = 0
+            //Log.d("카카오 새톡", newPosition.toString())
+            layoutManager?.let {
+                it.scrollToPositionWithOffset(newPosition,0)
             }
+
+
+
+            //스크롤 이벤트 설정
+            binding.rvTalkList.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    super.onScrolled(recyclerView, dx, dy)
+                    val lastVisibleItemPosition = layoutManager.findLastCompletelyVisibleItemPosition()
+                    val itemCount = adapter.itemCount
+                    if(lastVisibleItemPosition == itemCount-1){
+                        binding.tvNew.visibility = View.INVISIBLE
+                    }
+                }
+            })
         }
     }
 

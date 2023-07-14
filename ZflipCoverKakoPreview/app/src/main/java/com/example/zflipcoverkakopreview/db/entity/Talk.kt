@@ -11,7 +11,7 @@ import java.time.LocalDateTime
         ForeignKey(
             entity = Room::class,
             parentColumns = ["id"],
-            childColumns = ["roomId"],
+            childColumns = ["room_id"],
             onDelete = ForeignKey.CASCADE
         )
     ]
@@ -20,7 +20,7 @@ data class Talk(
     @PrimaryKey(autoGenerate = true)
     val id : Long=0,
 
-    @ColumnInfo(name = "roomId")
+    @ColumnInfo(name = "room_id")
     val roomId: Long,
 
     @ColumnInfo(name = "name")

@@ -17,7 +17,10 @@ interface TalkDao {
     @Query("SELECT * FROM TALK")
     fun getAll():List<Talk>
 
-    @Query("SELECT * FROM TALK WHERE roomId = :roomId")
+    @Query("SELECT * FROM TALK WHERE room_id = :roomId and id>:lastId")
+    fun getNewTalk(roomId:Long, lastId:Long):List<Talk>
+
+    @Query("SELECT * FROM TALK WHERE room_id = :roomId")
     fun getAllByRoomId(roomId: Long) : List<Talk>
 
     @Query("DELETE FROM talk WHERE reg_dt <= :daysAgo")
