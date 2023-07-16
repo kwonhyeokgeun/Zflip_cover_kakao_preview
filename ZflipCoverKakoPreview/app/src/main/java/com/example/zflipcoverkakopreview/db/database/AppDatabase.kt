@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import com.example.zflipcoverkakopreview.db.converter.BitmapConverter
 import com.example.zflipcoverkakopreview.db.converter.LocalDataTimeConverter
 import com.example.zflipcoverkakopreview.db.dao.RoomDao
 import com.example.zflipcoverkakopreview.db.dao.TalkDao
@@ -12,7 +13,7 @@ import com.example.zflipcoverkakopreview.db.entity.Talk
 
 
 @Database(entities = [Talk::class, Room::class], version = 1)
-@TypeConverters(LocalDataTimeConverter::class)
+@TypeConverters(LocalDataTimeConverter::class, BitmapConverter::class)
 abstract class AppDatabase : RoomDatabase(){
     abstract fun talkDao() : TalkDao
     abstract fun roomDao() : RoomDao

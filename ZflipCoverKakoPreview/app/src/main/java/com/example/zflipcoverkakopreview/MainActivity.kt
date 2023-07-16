@@ -78,16 +78,10 @@ class MainActivity : AppCompatActivity() , OnRoomClickListener{
 
         scope = MainScope()
         scope.launch { //이벤트버스 구독 등록
-            /*eventBus.notifyEvents.collect {
+            eventBus.notifyEvents.collect {
                 updateRoomRecyclerView() //채팅방 업데이트
-            }*/
-            eventBusTest.notifyEvents.collect({
-                //Log.d("카카오 프로필","변경")
-                binding.imageView.setImageIcon(it)
-                //binding.imageView.setImageBitmap(it)
-                //binding.imageView.setImageResource(it.resId)
+            }
 
-            })
         }
 
 

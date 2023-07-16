@@ -1,5 +1,6 @@
 package com.example.zflipcoverkakopreview.db.dao
 
+import android.graphics.Bitmap
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -29,6 +30,9 @@ interface RoomDao {
 
     @Query("UPDATE room SET  recent_chat=:recentChat ,new_cnt =:newCnt, recent_dt=:recentDt where id=:id")
     fun updateById(id : Long, recentChat : String, newCnt : Int, recentDt : LocalDateTime )
+
+    @Query("UPDATE room SET  recent_chat=:recentChat ,new_cnt =:newCnt, recent_dt=:dt, img_reg_dt=:dt, room_img=:img where id=:id")
+    fun updateImgById(id:Long, recentChat : String, newCnt : Int, dt : LocalDateTime, img:Bitmap?)
 
     @Query("Delete from room where id = :id")
     fun deleteById(id: Long)

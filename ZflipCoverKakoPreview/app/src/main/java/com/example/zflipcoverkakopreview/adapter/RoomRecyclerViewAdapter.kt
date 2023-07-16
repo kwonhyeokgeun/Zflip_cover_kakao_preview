@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.zflipcoverkakopreview.R
 import com.example.zflipcoverkakopreview.databinding.ItemRoomBinding
 import com.example.zflipcoverkakopreview.db.entity.Room
 import java.time.LocalDateTime
@@ -37,6 +38,11 @@ class RoomRecyclerViewAdapter(private val roomList :ArrayList<Room>, private val
         holder.tv_talk.text = room.recentChat
         holder.tv_recent_dt.text = room.recentDt?.let { getTimeText(it) }
         //Log.d("시간", room.recentDt.toString()) //2023-07-03T17:00:36.241061
+        if(room.roomImg==null){
+            holder.iv_profile.setImageResource(R.drawable.profile)
+        }else{
+            holder.iv_profile.setImageBitmap(room.roomImg)
+        }
 
         if(room.newCnt>0){
             holder.tv_is_read.visibility = View.VISIBLE
