@@ -20,7 +20,6 @@ import com.example.zflipcoverkakopreview.db.entity.Member
 import com.example.zflipcoverkakopreview.db.entity.TalkItem
 import com.example.zflipcoverkakopreview.eventbus.NotifyRoomEventBus
 import com.example.zflipcoverkakopreview.eventbus.NotifyTalkEventBus
-import com.example.zflipcoverkakopreview.eventbus.TestBus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -46,20 +45,8 @@ class MyNotificationListenerService : NotificationListenerService() {
         val text = extras?.getCharSequence(Notification.EXTRA_TEXT)?.toString()
         val subText = extras?.getCharSequence(Notification.EXTRA_SUB_TEXT)?.toString()
 
-        val smallIcon = notification?.smallIcon //카톡이미지
-        val largeIcon = notification?.getLargeIcon()//방이미지
-
-
-
-
-
-        // Icon을 Bitmap으로 변환
-//        val largeIconBitmap: Bitmap? = largeIcon?.loadDrawable(this)?.toBitmap()
-//        val smallIconBitmap: Bitmap? = smallIcon?.loadDrawable(this)?.toBitmap()
-
-
-
-
+        //val smallIcon = notification?.smallIcon //카톡이미지
+        //val largeIcon = notification?.getLargeIcon()//방이미지
 
 
         val userName = title
@@ -91,7 +78,7 @@ class MyNotificationListenerService : NotificationListenerService() {
                 " text : " + text +  //chat
                 " subText: " + subText) //roomName*/
 
-        //새톡 이벤트 전송
+        //새톡 저장 및 이벤트 전송
         CoroutineScope(Dispatchers.IO).launch {
             var talkItem : TalkItem? = null
             appDB.runInTransaction {
@@ -104,32 +91,6 @@ class MyNotificationListenerService : NotificationListenerService() {
                 NotifyTalkEventBus.notifyTalkChanged(it)
             }
         }
-
-
-        //아이콘 처리
-        /*val roomIcon = extras?.get(Notification.EXTRA_LARGE_ICON) as? Icon
-        var profileIcon :Icon?=null
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N ) {
-            val messages = notification?.extras?.getParcelableArray(Notification.EXTRA_MESSAGES)
-            if (messages != null) {
-                val message = messages[0]
-                if(message is Bundle &&Build.VERSION.SDK_INT >= Build.VERSION_CODES.P){
-                     val person =message.get("sender_person") as? Person
-                     profileIcon = person?.icon
-                     CoroutineScope(Dispatchers.IO).launch {
-                         profileIcon?.let {
-                             TestBus.imageChange(it)
-                         }
-                     }
-                }
-            }
-        }
-        CoroutineScope(Dispatchers.IO).launch {
-            roomIcon?.let {
-                //TestBus.imageChange(it)
-            }
-        }*/
 
     }
 
