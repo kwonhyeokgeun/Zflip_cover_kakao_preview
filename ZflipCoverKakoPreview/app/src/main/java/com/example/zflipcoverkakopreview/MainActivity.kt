@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.zflipcoverkakopreview.adapter.OnRoomClickListener
 import com.example.zflipcoverkakopreview.adapter.RoomRecyclerViewAdapter
 import com.example.zflipcoverkakopreview.databinding.ActivityMainBinding
+import com.example.zflipcoverkakopreview.db.dao.MemberDao
 import com.example.zflipcoverkakopreview.db.dao.RoomDao
 import com.example.zflipcoverkakopreview.db.dao.TalkDao
 import com.example.zflipcoverkakopreview.db.database.AppDatabase
@@ -31,6 +32,7 @@ class MainActivity : AppCompatActivity() , OnRoomClickListener{
     private lateinit var appDB : AppDatabase
     private lateinit var roomDao : RoomDao
     private lateinit var talkDao : TalkDao
+    private lateinit var memberDao : MemberDao
     private lateinit var roomList : ArrayList<Room>
     private lateinit var adapter : RoomRecyclerViewAdapter
     private lateinit var scope : CoroutineScope
@@ -45,6 +47,7 @@ class MainActivity : AppCompatActivity() , OnRoomClickListener{
         appDB = AppDatabase.getInstance(this)!!
         roomDao = appDB.roomDao()
         talkDao = appDB.talkDao()
+        memberDao = appDB.memberDao()
 
         if (!permissionGrantred()) {
             val intent = Intent(
@@ -65,6 +68,7 @@ class MainActivity : AppCompatActivity() , OnRoomClickListener{
             val twoDaysAgo = LocalDateTime.now().minusDays(2)
             talkDao.deleteOldTalk(twoDaysAgo)
             roomDao.deleteOldRoom(twoDaysAgo)
+            memberDao.deleteOldMember(twoDaysAgo)
         }.start()
     }
 
@@ -83,7 +87,6 @@ class MainActivity : AppCompatActivity() , OnRoomClickListener{
             }
 
         }
-
 
         Handler(Looper.getMainLooper()).postDelayed({
             updateRoomRecyclerView()

@@ -2,20 +2,15 @@ package com.example.zflipcoverkakopreview
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.View
-import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.LayoutManager
 import com.example.zflipcoverkakopreview.adapter.TalkRecyclerViewAdapter
 import com.example.zflipcoverkakopreview.databinding.ActivityRoomBinding
-import com.example.zflipcoverkakopreview.databinding.ItemTalkBinding
 import com.example.zflipcoverkakopreview.db.dao.RoomDao
 import com.example.zflipcoverkakopreview.db.dao.TalkDao
 import com.example.zflipcoverkakopreview.db.database.AppDatabase
-import com.example.zflipcoverkakopreview.db.entity.Talk
-import com.example.zflipcoverkakopreview.eventbus.NotifyRoomEventBus
+import com.example.zflipcoverkakopreview.db.entity.TalkItem
 import com.example.zflipcoverkakopreview.eventbus.NotifyTalkEventBus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
@@ -27,7 +22,7 @@ class RoomActivity : AppCompatActivity() {
     private lateinit var appDB : AppDatabase
     private lateinit var talkDao : TalkDao
     private lateinit var roomDao : RoomDao
-    private lateinit var talkList : ArrayList<Talk>
+    private lateinit var talkItemList : ArrayList<TalkItem>
     private lateinit var adapter : TalkRecyclerViewAdapter
     private var roomId : Long = 0
     private var newCnt : Int = 0
@@ -50,7 +45,7 @@ class RoomActivity : AppCompatActivity() {
         binding.ibBottom.bringToFront()
         screenWidth = resources.displayMetrics.widthPixels
 
-        talkList = arrayListOf()
+        talkItemList = arrayListOf()
         appDB = AppDatabase.getInstance(this)!!
         talkDao = appDB.talkDao()
         roomDao = appDB.roomDao()
@@ -75,7 +70,7 @@ class RoomActivity : AppCompatActivity() {
                 if(it.roomId ==roomId){
                     val lastVisibleItemPosition = layoutManager.findLastCompletelyVisibleItemPosition()
                     val itemCount = adapter.itemCount
-                    talkList.add(it)
+                    talkItemList.add(it)
                     adapter.notifyDataSetChanged()
                     if(itemCount-1 == lastVisibleItemPosition) {//스크롤이 아래면
                         layoutManager.scrollToPositionWithOffset(itemCount,0)
@@ -90,10 +85,10 @@ class RoomActivity : AppCompatActivity() {
     }
 
     private fun updateTalkList(){
-        if(talkList.size<=0) return
+        if(talkItemList.size<=0) return
         Thread{
-            val lastId = talkList.get(talkList.size-1).id
-            talkList.addAll(talkDao.getNewTalk(roomId, lastId))
+            val lastId = talkItemList[talkItemList.size-1].id
+            talkItemList.addAll(talkDao.getNewTalkItem(roomId, lastId))
             runOnUiThread {
                 adapter.notifyDataSetChanged()
             }
@@ -108,14 +103,14 @@ class RoomActivity : AppCompatActivity() {
     private fun setOnClickIbBottom(){
         binding.ibBottom.setOnClickListener{
             layoutManager?.let {
-                it.scrollToPosition(talkList.size-1)
+                it.scrollToPosition(talkItemList.size-1)
             }
         }
     }
     private fun getTalkList(){
         Thread{
-            talkList = ArrayList(talkDao.getAllByRoomId(roomId))
-            if(talkList == null ||talkList.size ==0) {
+            talkItemList = ArrayList(talkDao.getTalkItemsByRoomId(roomId))
+            if(talkItemList == null ||talkItemList.size ==0) {
                 return@Thread
             }
             setTalkRecyclerView()
@@ -125,13 +120,13 @@ class RoomActivity : AppCompatActivity() {
 
     private fun setTalkRecyclerView(){
         runOnUiThread{
-            adapter = TalkRecyclerViewAdapter(talkList, screenWidth)
+            adapter = TalkRecyclerViewAdapter(talkItemList, screenWidth)
             binding.rvTalkList.adapter = adapter
             layoutManager.stackFromEnd = true
             binding.rvTalkList.layoutManager = layoutManager
 
             //새톡 위치로 이동
-            var newPosition = talkList.size-1 -newCnt
+            var newPosition = talkItemList.size-1 -newCnt
             if(newPosition<0) newPosition = 0
             //Log.d("카카오 새톡", newPosition.toString())
             layoutManager?.let {

@@ -4,12 +4,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.zflipcoverkakopreview.R
 import com.example.zflipcoverkakopreview.databinding.ItemTalkBinding
-import com.example.zflipcoverkakopreview.db.entity.Talk
+import com.example.zflipcoverkakopreview.db.entity.TalkItem
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
-class TalkRecyclerViewAdapter (private val talkList : List<Talk>, private val screenWidth : Int) : RecyclerView.Adapter<TalkRecyclerViewAdapter.MyViewHolder>(){
+class TalkRecyclerViewAdapter (private val talkItemList : List<TalkItem>, private val screenWidth : Int) : RecyclerView.Adapter<TalkRecyclerViewAdapter.MyViewHolder>(){
     inner class MyViewHolder(binding : ItemTalkBinding) : RecyclerView.ViewHolder(binding.root){
         val tv_name = binding.tvName
         val tv_chat = binding.tvChat
@@ -25,24 +26,26 @@ class TalkRecyclerViewAdapter (private val talkList : List<Talk>, private val sc
     }
 
     override fun getItemCount(): Int {
-        return talkList.size
+        return talkItemList.size
     }
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        val talk = talkList[position]
+        val talkItem = talkItemList[position]
 
         holder.tv_chat.maxWidth = (screenWidth*0.6).toInt()
 
         //위랑 비교, 동일인물
-        if( position>0 && talkList[position-1].name == talk.name){
-            val prevTime = talkList[position-1].regDt
-            val time = talk.regDt
+        if( position>0 && talkItemList[position-1].name == talkItem.name){
+            val prevTime = talkItemList[position-1].regDt
+            val time = talkItem.regDt
             //2분이상 차이
             if(prevTime.isBefore(time.minus(1, ChronoUnit.MINUTES))){
                 holder.cv_profile.layoutParams.height =holder.cv_profile.layoutParams.width
                 holder.cv_profile.visibility = View.VISIBLE
                 holder.tv_name.visibility = View.VISIBLE
-                holder.tv_name.text = talk.name
+                holder.tv_name.text = talkItem.name
+                if(talkItem.profileImg==null) holder.iv_profile.setImageResource(R.drawable.profile)
+                else holder.iv_profile.setImageBitmap(talkItem.profileImg)
             }else{
                 holder.cv_profile.layoutParams.height =holder.cv_profile.layoutParams.width/2
                 holder.cv_profile.visibility = View.INVISIBLE
@@ -53,25 +56,27 @@ class TalkRecyclerViewAdapter (private val talkList : List<Talk>, private val sc
             holder.tv_name.visibility = View.VISIBLE
             holder.cv_profile.layoutParams.height =holder.cv_profile.layoutParams.width
             holder.cv_profile.visibility = View.VISIBLE
+            if(talkItem.profileImg==null) holder.iv_profile.setImageResource(R.drawable.profile)
+            else holder.iv_profile.setImageBitmap(talkItem.profileImg)
 
-            holder.tv_name.text = talk.name
+            holder.tv_name.text = talkItem.name
         }
-        holder.tv_chat.text = talk.chat
+        holder.tv_chat.text = talkItem.chat
 
         //아래랑 비교
-        if(position!=talkList.size-1 && talkList[position+1].name == talk.name){
-            val nextTime = talkList[position+1].regDt
-            val time = talk.regDt
+        if(position!=talkItemList.size-1 && talkItemList[position+1].name == talkItem.name){
+            val nextTime = talkItemList[position+1].regDt
+            val time = talkItem.regDt
             //동일시간
             if(nextTime.minute==time.minute && nextTime.hour == time.hour && nextTime.dayOfMonth == time.dayOfMonth) {
                 holder.tv_time.visibility = View.GONE
             }else{
                 holder.tv_time.visibility = View.VISIBLE
-                holder.tv_time.text = getTimeText(talk.regDt)
+                holder.tv_time.text = getTimeText(talkItem.regDt)
             }
         }else{
             holder.tv_time.visibility = View.VISIBLE
-            holder.tv_time.text = getTimeText(talk.regDt)
+            holder.tv_time.text = getTimeText(talkItem.regDt)
         }
 
     }

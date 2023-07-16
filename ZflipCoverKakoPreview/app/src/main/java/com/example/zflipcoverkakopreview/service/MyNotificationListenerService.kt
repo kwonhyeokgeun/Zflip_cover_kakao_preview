@@ -3,41 +3,37 @@ package com.example.zflipcoverkakopreview.service
 import android.app.Notification
 import android.app.Person
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Canvas
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
 import android.graphics.drawable.Icon
 import android.os.Build
 import android.os.Bundle
-import android.os.Parcelable
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
-import android.widget.RemoteViews
-import androidx.core.app.NotificationCompat
 import androidx.core.graphics.drawable.toBitmap
+import com.example.zflipcoverkakopreview.db.dao.MemberDao
 import com.example.zflipcoverkakopreview.db.dao.RoomDao
 import com.example.zflipcoverkakopreview.db.dao.TalkDao
 import com.example.zflipcoverkakopreview.db.database.AppDatabase
 import com.example.zflipcoverkakopreview.db.entity.Room
 import com.example.zflipcoverkakopreview.db.entity.Talk
+import com.example.zflipcoverkakopreview.db.entity.Member
+import com.example.zflipcoverkakopreview.db.entity.TalkItem
 import com.example.zflipcoverkakopreview.eventbus.NotifyRoomEventBus
 import com.example.zflipcoverkakopreview.eventbus.NotifyTalkEventBus
 import com.example.zflipcoverkakopreview.eventbus.TestBus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.io.IOException
 import java.lang.Exception
-import java.net.URL
 import java.time.LocalDateTime
 
 class MyNotificationListenerService : NotificationListenerService() {
     private lateinit var roomDao : RoomDao
     private lateinit var talkDao : TalkDao
+    private lateinit var memberDao : MemberDao
     private lateinit var appDB : AppDatabase
     private var extras : Bundle? = null
+    private var isGroup:Boolean = false
     override fun onListenerConnected() {
         super.onListenerConnected()
 
@@ -68,10 +64,18 @@ class MyNotificationListenerService : NotificationListenerService() {
 
         val userName = title
         var roomName = subText.toString()
-        var isGroup=false
+
+        val packNameList = (sbn?.packageName!!).split(".")
+        if (packNameList.size<2) return
+        val packName = packNameList[1]
+
+        if(packName != "kakao" || sbn?.id!=2)
+            return
+
+        isGroup=true
         if (roomName =="null") {
             roomName = userName.toString()
-            isGroup=true
+            isGroup=false
         }
 
         //val chat = text.toString()
@@ -86,24 +90,17 @@ class MyNotificationListenerService : NotificationListenerService() {
                 " title: " + title +  //name
                 " text : " + text +  //chat
                 " subText: " + subText) //roomName*/
-        val packNameList = (sbn?.packageName!!).split(".")
-        if (packNameList.size<2) return
-        val packName = packNameList[1]
 
-        if(packName != "kakao" || sbn?.id!=2)
-            return
-
-        val roomBitmap: Bitmap? = null
-        val profileBitmap:Bitmap? = null
+        //새톡 이벤트 전송
         CoroutineScope(Dispatchers.IO).launch {
-            var talk : Talk? = null
+            var talkItem : TalkItem? = null
             appDB.runInTransaction {
                 var room = getUpdatedRoom(roomName, chat, now)
                 val talkId = addTalk(room.id, userName!!, chat, now)
-                talk = talkDao.getByTalkId(talkId)
+                talkItem = talkDao.getTalkItemByTalkId(talkId)
             }
             NotifyRoomEventBus.notifyRoomChanged()
-            talk?.let {
+            talkItem?.let {
                 NotifyTalkEventBus.notifyTalkChanged(it)
             }
         }
@@ -141,17 +138,22 @@ class MyNotificationListenerService : NotificationListenerService() {
         return roomIcon.loadDrawable(this)?.toBitmap()
     }
 
-    private fun getProfileBitmap() : Bitmap?{
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N ) {
-            val messages = extras?.getParcelableArray(Notification.EXTRA_MESSAGES)
-            if (!messages.isNullOrEmpty()) {
-                val message = messages[0]
-                if(message is Bundle &&Build.VERSION.SDK_INT >= Build.VERSION_CODES.P){
-                    val person =message.get("sender_person") as? Person
-                    val profileIcon = person?.icon
-                    return profileIcon?.loadDrawable(this)?.toBitmap()
+    private fun getProfileBitmap(isGroup : Boolean) : Bitmap?{
+        if(!isGroup) return getRoomBitmap()
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                val messages = extras?.getParcelableArray(Notification.EXTRA_MESSAGES)
+                if (!messages.isNullOrEmpty()) {
+                    val message = messages[0]
+                    if (message is Bundle && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        val person = message.get("sender_person") as? Person
+                        val profileIcon = person?.icon
+                        return profileIcon?.loadDrawable(this)?.toBitmap()
+                    }
                 }
             }
+        }catch (e : Exception){
+            return null
         }
         return null
     }
@@ -181,18 +183,31 @@ class MyNotificationListenerService : NotificationListenerService() {
             }else{
                 roomDao.updateById(roomId, chat,room.newCnt+1, now)
             }
-
-
         }
         return room
     }
 
-    private fun addTalk(roomId : Long, userName : String, chat : String, now : LocalDateTime):Long{
-        val talk = Talk(0, roomId, userName, chat, now)
+    private fun addTalk(roomId : Long, memberName : String, chat : String, now : LocalDateTime):Long{
+        val memberId = getMemberId(memberName)
+        val talk = Talk(0, roomId, memberId, chat, now)
 
         return talkDao.insert(talk)
-        //val talkList2 = talkDao.getAllByRoomId(roomId)
+    }
 
+    private fun getMemberId(memberName: String) : Long{
+        val member =  memberDao.getByName(memberName)
+        if(member==null){ //첫맴버
+            val profileImg = getProfileBitmap(isGroup)
+            return memberDao.insert(Member(0,memberName, profileImg, LocalDateTime.now()))
+        }
+        else{ //기존맴버
+            if(member.imgRegDt.isBefore(LocalDateTime.now().minusDays(1))){
+                //프사 업데이트
+                val profileImg = getProfileBitmap(isGroup)
+                memberDao.updateImgById(member.id, profileImg, LocalDateTime.now())
+            }
+            return member.id
+        }
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification?, rankingMap: RankingMap?) {
@@ -235,15 +250,18 @@ class MyNotificationListenerService : NotificationListenerService() {
         appDB = AppDatabase.getInstance(this)!!
         roomDao = appDB.roomDao()
         talkDao = appDB.talkDao()
+        memberDao = appDB.memberDao()
+
         Log.d("카카오 시작","시작")
         CoroutineScope(Dispatchers.IO).launch {
             var room: Room? = roomDao.getByRoomId(1)
             if (room == null) {
-                roomDao.insert(Room(1, "시스템", "시작", LocalDateTime.now(), 1, null, LocalDateTime.now()))
+                roomDao.insert(Room(1, "-시스템-", "시작", LocalDateTime.now(), 1, null, LocalDateTime.now()))
+                memberDao.insert(Member(1, "-시스템-", null, LocalDateTime.now()))
             } else {
                 roomDao.updateById(1, "시작", 1, LocalDateTime.now())
             }
-            talkDao.insert(Talk(0, 1, "시스템", "시작", LocalDateTime.now()))
+            talkDao.insert(Talk(0, 1, 1L, "시작", LocalDateTime.now()))
         }
     }
 
@@ -252,11 +270,11 @@ class MyNotificationListenerService : NotificationListenerService() {
         CoroutineScope(Dispatchers.IO).launch {
             var room: Room? = roomDao.getByRoomId(1)
             if (room == null) {
-                roomDao.insert(Room(1, "시스템", "종료", LocalDateTime.now(), 1,null, LocalDateTime.now()))
+                roomDao.insert(Room(1, "-시스템-", "종료", LocalDateTime.now(), 1,null, LocalDateTime.now()))
             } else {
                 roomDao.updateById(1, "종료", 1, LocalDateTime.now())
             }
-            talkDao.insert(Talk(0, 1, "시스템", "종료", LocalDateTime.now()))
+            talkDao.insert(Talk(0, 1, 1, "종료", LocalDateTime.now()))
         }
     }
 }

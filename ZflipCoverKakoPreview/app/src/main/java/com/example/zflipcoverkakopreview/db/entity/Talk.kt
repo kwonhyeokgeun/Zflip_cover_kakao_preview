@@ -13,6 +13,12 @@ import java.time.LocalDateTime
             parentColumns = ["id"],
             childColumns = ["room_id"],
             onDelete = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = Member::class,
+            parentColumns = ["id"],
+            childColumns = ["member_id"],
+            onDelete = ForeignKey.CASCADE
         )
     ]
 )
@@ -23,8 +29,8 @@ data class Talk(
     @ColumnInfo(name = "room_id")
     val roomId: Long,
 
-    @ColumnInfo(name = "name")
-    val name : String?,
+    @ColumnInfo(name = "member_id")
+    val memberId : Long?,
 
     @ColumnInfo(name = "chat")
     val chat : String?,
