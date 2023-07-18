@@ -16,9 +16,12 @@ import com.example.zflipcoverkakopreview.db.dao.MemberDao
 import com.example.zflipcoverkakopreview.db.dao.RoomDao
 import com.example.zflipcoverkakopreview.db.dao.TalkDao
 import com.example.zflipcoverkakopreview.db.database.AppDatabase
+import com.example.zflipcoverkakopreview.db.entity.Member
 import com.example.zflipcoverkakopreview.db.entity.Room
+import com.example.zflipcoverkakopreview.db.entity.Talk
 import com.example.zflipcoverkakopreview.eventbus.NotifyRoomEventBus
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
@@ -35,6 +38,7 @@ class MainActivity : AppCompatActivity() , OnRoomClickListener{
     private lateinit var scope : CoroutineScope
     private val eventBus = NotifyRoomEventBus
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -47,6 +51,7 @@ class MainActivity : AppCompatActivity() , OnRoomClickListener{
         memberDao = appDB.memberDao()
 
         if (!permissionGrantred()) {
+            insertInfo()
             val intent = Intent(
                 "android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS")
             startActivity(intent)
@@ -72,6 +77,20 @@ class MainActivity : AppCompatActivity() , OnRoomClickListener{
     private fun permissionGrantred(): Boolean {
         val sets = NotificationManagerCompat.getEnabledListenerPackages(this)
         return sets != null && sets.contains(packageName)
+    }
+
+    private fun insertInfo(){
+        CoroutineScope(Dispatchers.IO).launch {
+            appDB.runInTransaction {
+                // 트랜잭션 처리 코드
+                roomDao.insert(Room(1, getString(R.string.app_info_room), getString(R.string.app_info3), LocalDateTime.now(), 3, null, LocalDateTime.now()))
+                memberDao.insert(Member(1, getString(R.string.app_info_room), null, LocalDateTime.now()))
+                talkDao.insert(Talk(0, 1, 1L, getString(R.string.app_info1), LocalDateTime.now()))
+                talkDao.insert(Talk(0, 1, 1L, getString(R.string.app_info2), LocalDateTime.now()))
+                talkDao.insert(Talk(0, 1, 1L, getString(R.string.app_info3), LocalDateTime.now()))
+            }
+        }
+
     }
 
     override fun onResume() {

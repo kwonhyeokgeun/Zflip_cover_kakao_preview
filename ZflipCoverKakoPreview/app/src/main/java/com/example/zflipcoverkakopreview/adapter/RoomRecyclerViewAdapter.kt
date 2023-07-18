@@ -46,7 +46,6 @@ class RoomRecyclerViewAdapter(private val roomList :ArrayList<Room>, private val
 
         if(room.newCnt>0){
             holder.tv_is_read.visibility = View.VISIBLE
-
             if(room.newCnt>300)
                 holder.tv_is_read.text="300+"
             else
@@ -56,14 +55,14 @@ class RoomRecyclerViewAdapter(private val roomList :ArrayList<Room>, private val
         }
 
         holder.root.setOnClickListener{
-            val room = roomList.get(position)
+            val room = roomList[position]
             val roomId = room.id
             val newCnt = room.newCnt
             roomClickListener.onClick(roomId, newCnt)
         }
 
         holder.root.setOnLongClickListener {
-            val roomId = roomList.get(position).id
+            val roomId = roomList[position].id
             roomClickListener.onLongClick(roomId)
             true
         }

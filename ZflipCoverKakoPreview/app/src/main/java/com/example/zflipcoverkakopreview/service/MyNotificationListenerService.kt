@@ -35,7 +35,6 @@ class MyNotificationListenerService : NotificationListenerService() {
     private var isGroup:Boolean = false
     override fun onListenerConnected() {
         super.onListenerConnected()
-
     }
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         super.onNotificationPosted(sbn)
@@ -49,8 +48,8 @@ class MyNotificationListenerService : NotificationListenerService() {
         //val largeIcon = notification?.getLargeIcon()//방이미지
 
 
-        val userName = title
-        var roomName = subText.toString()
+        val userName = title?.trim()
+        var roomName = subText.toString().trim()
 
         val packNameList = (sbn?.packageName!!).split(".")
         if (packNameList.size<2) return
@@ -70,14 +69,6 @@ class MyNotificationListenerService : NotificationListenerService() {
         if(chat=="null") chat = text.toString()
         val now = LocalDateTime.now()
 
-        /*Log.d("카카오 푸쉬 Log","onNotificationPosted ~ " +
-                " packageName: " + sbn?.packageName +
-                " id: " + sbn?.id +
-                " postTime: " + sbn?.postTime +
-                " title: " + title +  //name
-                " text : " + text +  //chat
-                " subText: " + subText) //roomName*/
-
         //새톡 저장 및 이벤트 전송
         CoroutineScope(Dispatchers.IO).launch {
             var talkItem : TalkItem? = null
@@ -94,36 +85,13 @@ class MyNotificationListenerService : NotificationListenerService() {
 
     }
 
-    private fun getRoomBitmap() : Bitmap?{
-        val roomIcon = extras?.get(Notification.EXTRA_LARGE_ICON) as? Icon ?: return null
-        return roomIcon.loadDrawable(this)?.toBitmap()
-    }
-
-    private fun getProfileBitmap(isGroup : Boolean) : Bitmap?{
-        if(!isGroup) return getRoomBitmap()
-        try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                val messages = extras?.getParcelableArray(Notification.EXTRA_MESSAGES)
-                if (!messages.isNullOrEmpty()) {
-                    val message = messages[0]
-                    if (message is Bundle && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                        val person = message.get("sender_person") as? Person
-                        val profileIcon = person?.icon
-                        return profileIcon?.loadDrawable(this)?.toBitmap()
-                    }
-                }
-            }
-        }catch (e : Exception){
-            return null
-        }
-        return null
-    }
 
     private fun getUpdatedRoom(roomName : String, chat : String, now : LocalDateTime) : Room{
         var room : Room
         room = roomDao.getByRoomName(roomName)
 
         if(room == null){
+            //Log.d("카카오 새룸", "${roomId} ${room}")
             var roomId:Long =0L
             try{
                 val roomImg = getRoomBitmap()
@@ -133,11 +101,11 @@ class MyNotificationListenerService : NotificationListenerService() {
             }
 
             room = roomDao.getByRoomId(roomId)
-            //Log.d("카카오 새룸", "${roomId} ${room}") //룸 id확인하기
+
         }else{
-            val roomId = room.id
             //Log.d("카카오 기존룸", "${roomId} ${room}")
-            if(room.imgRegDt.isBefore(now.minusDays(1))){
+            val roomId = room.id
+            if(room.roomImg==null || room.imgRegDt.isBefore(now.minusDays(1))){
                 //이미지 업뎃
                 val roomImg = getRoomBitmap()
                 roomDao.updateImgById(roomId,chat, room.newCnt+1, now, roomImg)
@@ -162,7 +130,10 @@ class MyNotificationListenerService : NotificationListenerService() {
             return memberDao.insert(Member(0,memberName, profileImg, LocalDateTime.now()))
         }
         else{ //기존맴버
-            if(member.imgRegDt.isBefore(LocalDateTime.now().minusDays(1))){
+            //val profile =getProfileBitmap(isGroup)
+            //Log.d("카카오 픽셀","${memberName}  ${profile?.getPixel(50,50)} ${profile?.getPixel(150,55)} ${profile?.getPixel(55,150)} ${profile?.getPixel(150,150)}")
+            //Log.d("카카오 넓이", profile?.width.toString())
+            if(member.profileImg==null || member.imgRegDt.isBefore(LocalDateTime.now().minusDays(1))){
                 //프사 업데이트
                 val profileImg = getProfileBitmap(isGroup)
                 memberDao.updateImgById(member.id, profileImg, LocalDateTime.now())
@@ -171,15 +142,47 @@ class MyNotificationListenerService : NotificationListenerService() {
         }
     }
 
+    private fun getRoomBitmap() : Bitmap?{
+        val roomIcon = extras?.get(Notification.EXTRA_LARGE_ICON) as? Icon
+
+        if(roomIcon==null){
+            Log.d("카카오 방 사진 널", "널")
+            return null
+        }
+        return roomIcon.loadDrawable(this)?.toBitmap()
+    }
+
+    private fun getProfileBitmap(isGroup : Boolean) : Bitmap?{
+        if(!isGroup) return getRoomBitmap()
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                val messages = extras?.getParcelableArray(Notification.EXTRA_MESSAGES)
+                if (!messages.isNullOrEmpty()) {
+                    val message = messages[0]
+                    if (message is Bundle && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        val person = message.get("sender_person") as? Person
+                        val profileIcon = person?.icon
+                        return profileIcon?.loadDrawable(this)?.toBitmap()
+                    }
+                }
+            }
+        }catch (e : Exception){
+            Log.d("카카오 프사에러", e.toString())
+            return null
+        }
+        return null
+    }
+
+
     override fun onNotificationRemoved(sbn: StatusBarNotification?, rankingMap: RankingMap?) {
         super.onNotificationRemoved(sbn, rankingMap)
         val notification = sbn?.notification
         val extras = sbn?.notification?.extras
         val title = extras?.getString(Notification.EXTRA_TITLE)?.toString()
-        val text = extras?.getCharSequence(Notification.EXTRA_TEXT)?.toString()
+        //val text = extras?.getCharSequence(Notification.EXTRA_TEXT)?.toString()
         val subText = extras?.getCharSequence(Notification.EXTRA_SUB_TEXT)?.toString()
-        val smallIcon = notification?.smallIcon
-        val largeIcon = notification?.getLargeIcon()
+        //val smallIcon = notification?.smallIcon
+        //val largeIcon = notification?.getLargeIcon()
         /*Log.d("카카오 제거 Log","onNotificationPosted ~ " +
                 " packageName: " + sbn?.packageName +
                 " id: " + sbn?.id +
@@ -187,9 +190,13 @@ class MyNotificationListenerService : NotificationListenerService() {
                 " title: " + title +  //name
                 " text : " + text +  //chat
                 " subText: " + subText) //roomName*/
+
         val packNameList = (sbn?.packageName!!).split(".")
         if(packNameList.size<2) return
         val packName = packNameList[1]
+        if(packName != "kakao" || sbn?.id!=2)
+            return
+
         var roomName = subText.toString()
         var isGroup=false
         if (roomName =="null") {
@@ -197,12 +204,13 @@ class MyNotificationListenerService : NotificationListenerService() {
             roomName = userName.toString()
             isGroup=true
         }
-        if(packName == "kakao" && sbn?.id==2){
-            CoroutineScope(Dispatchers.IO).launch {
-                roomDao.setReadByRoomName(roomName)
-                NotifyRoomEventBus.notifyRoomChanged()
-            }
+
+        //알림 읽음처리
+        CoroutineScope(Dispatchers.IO).launch {
+            roomDao.setReadByRoomName(roomName)
+            NotifyRoomEventBus.notifyRoomChanged()
         }
+
 
     }
 
@@ -213,29 +221,29 @@ class MyNotificationListenerService : NotificationListenerService() {
         talkDao = appDB.talkDao()
         memberDao = appDB.memberDao()
 
-        Log.d("카카오 시작","시작")
+        /*Log.d("카카오 시작","시작")
         CoroutineScope(Dispatchers.IO).launch {
             var room: Room? = roomDao.getByRoomId(1)
             if (room == null) {
-                roomDao.insert(Room(1, "-시스템-", "시작", LocalDateTime.now(), 1, null, LocalDateTime.now()))
-                memberDao.insert(Member(1, "-시스템-", null, LocalDateTime.now()))
+                roomDao.insert(Room(1, "\uD83D\uDE3A 설명서 \uD83D\uDE0A", "시작", LocalDateTime.now(), 1, null, LocalDateTime.now()))
+                memberDao.insert(Member(1, "\uD83D\uDE3A 설명서 \uD83D\uDE0A", null, LocalDateTime.now()))
             } else {
                 roomDao.updateById(1, "시작", 1, LocalDateTime.now())
             }
             talkDao.insert(Talk(0, 1, 1L, "시작", LocalDateTime.now()))
-        }
+        }*/
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        CoroutineScope(Dispatchers.IO).launch {
+        /*CoroutineScope(Dispatchers.IO).launch {
             var room: Room? = roomDao.getByRoomId(1)
             if (room == null) {
-                roomDao.insert(Room(1, "-시스템-", "종료", LocalDateTime.now(), 1,null, LocalDateTime.now()))
+                roomDao.insert(Room(1, "\uD83D\uDE3A 설명서 \uD83D\uDE0A", "종료", LocalDateTime.now(), 1,null, LocalDateTime.now()))
             } else {
                 roomDao.updateById(1, "종료", 1, LocalDateTime.now())
             }
             talkDao.insert(Talk(0, 1, 1, "종료", LocalDateTime.now()))
-        }
+        }*/
     }
 }
