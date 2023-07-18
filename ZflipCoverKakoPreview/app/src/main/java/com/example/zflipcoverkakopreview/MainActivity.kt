@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.NotificationManagerCompat
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -19,11 +20,13 @@ import com.example.zflipcoverkakopreview.db.database.AppDatabase
 import com.example.zflipcoverkakopreview.db.entity.Member
 import com.example.zflipcoverkakopreview.db.entity.Room
 import com.example.zflipcoverkakopreview.db.entity.Talk
+import com.example.zflipcoverkakopreview.eventbus.EventBus
 import com.example.zflipcoverkakopreview.eventbus.NotifyRoomEventBus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
@@ -37,7 +40,7 @@ class MainActivity : AppCompatActivity() , OnRoomClickListener{
     private lateinit var adapter : RoomRecyclerViewAdapter
     private lateinit var scope : CoroutineScope
     private val eventBus = NotifyRoomEventBus
-
+    private val testBus = EventBus
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,9 +62,6 @@ class MainActivity : AppCompatActivity() , OnRoomClickListener{
 
         setRoomRecyclerView()
         deleteOldTalk()
-
-
-
 
     }
 
@@ -98,8 +98,12 @@ class MainActivity : AppCompatActivity() , OnRoomClickListener{
 
         scope = MainScope()
         scope.launch { //이벤트버스 구독 등록
-            eventBus.notifyEvents.collect {
+            /*eventBus.notifyEvents.collect {
                 updateRoomRecyclerView() //채팅방 업데이트
+            }*/
+            testBus.notifyEvents.collect{
+                Log.d("카카오 버스", it.toString())
+                binding.ivTest.setImageIcon(it)
             }
 
         }

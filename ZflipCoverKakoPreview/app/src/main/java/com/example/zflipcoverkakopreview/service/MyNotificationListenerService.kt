@@ -4,11 +4,13 @@ import android.app.Notification
 import android.app.Person
 import android.graphics.Bitmap
 import android.graphics.drawable.Icon
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
+import androidx.core.app.NotificationCompat
 import androidx.core.graphics.drawable.toBitmap
 import com.example.zflipcoverkakopreview.db.dao.MemberDao
 import com.example.zflipcoverkakopreview.db.dao.RoomDao
@@ -18,6 +20,7 @@ import com.example.zflipcoverkakopreview.db.entity.Room
 import com.example.zflipcoverkakopreview.db.entity.Talk
 import com.example.zflipcoverkakopreview.db.entity.Member
 import com.example.zflipcoverkakopreview.db.entity.TalkItem
+import com.example.zflipcoverkakopreview.eventbus.EventBus
 import com.example.zflipcoverkakopreview.eventbus.NotifyRoomEventBus
 import com.example.zflipcoverkakopreview.eventbus.NotifyTalkEventBus
 import kotlinx.coroutines.CoroutineScope
@@ -63,11 +66,26 @@ class MyNotificationListenerService : NotificationListenerService() {
             roomName = userName.toString()
             isGroup=false
         }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val hasimage = notification?.hasImage()
+            Log.d("카카오 사진임티!", hasimage.toString())
+        }
 
         //val chat = text.toString()
         var chat = extras?.getCharSequence(Notification.EXTRA_BIG_TEXT).toString()
         if(chat=="null") chat = text.toString()
         val now = LocalDateTime.now()
+        if(chat=="이모티콘을 보냈습니다." || chat=="사진을 보냈습니다."){
+            //val messagingStyle = NotificationCompat.MessagingStyle.extractMessagingStyleFromNotification(notification)
+            /*Log.d("카카오 사진임티", extras?.get(Notification.EXTRA_PICTURE).toString())
+            Log.d("카카오 사진임티", extras?.get(Notification.EXTRA_LARGE_ICON_BIG).toString())
+            Log.d("카카오 사진임티", extras?.get(Notification.EXTRA_BACKGROUND_IMAGE_URI).toString())
+            Log.d("카카오 사진임티", extras?.get(Notification.EXTRA_VERIFICATION_ICON).toString())*/
+            if (notification != null) {
+                ///val style = NotificationCompat.BigPictureStyle(notification)
+            }
+            getPicture()
+        }
 
         //새톡 저장 및 이벤트 전송
         CoroutineScope(Dispatchers.IO).launch {
@@ -77,7 +95,7 @@ class MyNotificationListenerService : NotificationListenerService() {
                 val talkId = addTalk(room.id, userName!!, chat, now)
                 talkItem = talkDao.getTalkItemByTalkId(talkId)
             }
-            NotifyRoomEventBus.notifyRoomChanged()
+            //NotifyRoomEventBus.notifyRoomChanged()
             talkItem?.let {
                 NotifyTalkEventBus.notifyTalkChanged(it)
             }
@@ -139,6 +157,25 @@ class MyNotificationListenerService : NotificationListenerService() {
                 memberDao.updateImgById(member.id, profileImg, LocalDateTime.now())
             }
             return member.id
+        }
+    }
+
+    private fun getPicture(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            val messages = extras?.getParcelableArray(Notification.EXTRA_MESSAGES)
+            if (!messages.isNullOrEmpty()) {
+                val message = messages[0]
+                if (message is Bundle && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    val type=message.get("type")
+                    val person=message.get("sender")as? Person
+                    val icon = person?.key
+                    Log.d("카카오 확인","${icon} ")
+                    /*CoroutineScope(Dispatchers.IO).launch {
+                        icon?.let { EventBus.notifyTalkChanged(it) }
+                    }*/
+
+                }
+            }
         }
     }
 
