@@ -74,6 +74,9 @@ class MyNotificationListenerService : NotificationListenerService() {
         //val chat = text.toString()
         var chat = extras?.getCharSequence(Notification.EXTRA_BIG_TEXT).toString()
         if(chat=="null") chat = text.toString()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && notification?.hasImage() == true) {
+            Log.d("카카이 이미지 여부","있다")
+        }
         val now = LocalDateTime.now()
         if(chat=="이모티콘을 보냈습니다." || chat=="사진을 보냈습니다."){
             //val messagingStyle = NotificationCompat.MessagingStyle.extractMessagingStyleFromNotification(notification)
@@ -81,6 +84,7 @@ class MyNotificationListenerService : NotificationListenerService() {
             Log.d("카카오 사진임티", extras?.get(Notification.EXTRA_LARGE_ICON_BIG).toString())
             Log.d("카카오 사진임티", extras?.get(Notification.EXTRA_BACKGROUND_IMAGE_URI).toString())
             Log.d("카카오 사진임티", extras?.get(Notification.EXTRA_VERIFICATION_ICON).toString())*/
+
             if (notification != null) {
                 ///val style = NotificationCompat.BigPictureStyle(notification)
             }
