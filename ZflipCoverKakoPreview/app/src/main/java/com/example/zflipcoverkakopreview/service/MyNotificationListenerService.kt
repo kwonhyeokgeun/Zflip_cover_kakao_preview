@@ -74,8 +74,13 @@ class MyNotificationListenerService : NotificationListenerService() {
         //val chat = text.toString()
         var chat = extras?.getCharSequence(Notification.EXTRA_BIG_TEXT).toString()
         if(chat=="null") chat = text.toString()
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && notification?.hasImage() == true) {
             Log.d("카카이 이미지 여부","있다")
+            val pictureIcon = extras?.getParcelable<Icon>(Notification.EXTRA_PICTURE_ICON)
+            val verificationIcon = extras?.getParcelable<Icon>(Notification.EXTRA_VERIFICATION_ICON)
+            val largeIconBig = extras?.getParcelable<Icon>(Notification.EXTRA_LARGE_ICON_BIG)
+
         }
         val now = LocalDateTime.now()
         if(chat=="이모티콘을 보냈습니다." || chat=="사진을 보냈습니다."){
