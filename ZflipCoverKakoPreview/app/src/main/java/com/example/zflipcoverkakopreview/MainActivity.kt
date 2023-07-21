@@ -27,13 +27,12 @@ import com.example.zflipcoverkakopreview.db.database.AppDatabase
 import com.example.zflipcoverkakopreview.db.entity.Member
 import com.example.zflipcoverkakopreview.db.entity.Room
 import com.example.zflipcoverkakopreview.db.entity.Talk
-import com.example.zflipcoverkakopreview.eventbus.EventBus
+import com.example.zflipcoverkakopreview.eventbus.EventBusB
 import com.example.zflipcoverkakopreview.eventbus.NotifyRoomEventBus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
@@ -47,7 +46,7 @@ class MainActivity : AppCompatActivity() , OnRoomClickListener{
     private lateinit var adapter : RoomRecyclerViewAdapter
     private lateinit var scope : CoroutineScope
     private val eventBus = NotifyRoomEventBus
-    private val testBus = EventBus
+    private val testBus = EventBusB
     private val this_ = this
 
     // 알림 채널을 생성하는 함수
@@ -75,7 +74,7 @@ class MainActivity : AppCompatActivity() , OnRoomClickListener{
             .setSmallIcon(R.drawable.profile)
             .setContentTitle(imageTitle)
             .setContentText(imageDescription)
-            .setLargeIcon(myBitmap)
+            .setLargeIcon(null)
             .setStyle(NotificationCompat.BigPictureStyle()
                 .bigPicture(myBitmap)
                 .bigLargeIcon(null))
