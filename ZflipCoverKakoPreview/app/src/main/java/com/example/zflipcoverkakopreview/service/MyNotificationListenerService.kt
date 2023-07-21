@@ -1,7 +1,10 @@
 package com.example.zflipcoverkakopreview.service
 
 import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.app.Person
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.Icon
 import android.os.Build
@@ -12,6 +15,8 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.MessagingStyle
 import androidx.core.graphics.drawable.toBitmap
+import com.example.zflipcoverkakopreview.MainActivity
+import com.example.zflipcoverkakopreview.R
 import com.example.zflipcoverkakopreview.db.dao.MemberDao
 import com.example.zflipcoverkakopreview.db.dao.RoomDao
 import com.example.zflipcoverkakopreview.db.dao.TalkDao
@@ -20,12 +25,14 @@ import com.example.zflipcoverkakopreview.db.entity.Member
 import com.example.zflipcoverkakopreview.db.entity.Room
 import com.example.zflipcoverkakopreview.db.entity.Talk
 import com.example.zflipcoverkakopreview.db.entity.TalkItem
+import com.example.zflipcoverkakopreview.eventbus.EventBus
 import com.example.zflipcoverkakopreview.eventbus.NotifyRoomEventBus
 import com.example.zflipcoverkakopreview.eventbus.NotifyTalkEventBus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
+
 
 class MyNotificationListenerService : NotificationListenerService() {
     private lateinit var roomDao : RoomDao
@@ -37,6 +44,9 @@ class MyNotificationListenerService : NotificationListenerService() {
     override fun onListenerConnected() {
         super.onListenerConnected()
     }
+
+
+
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         super.onNotificationPosted(sbn)
         val notification = sbn?.notification
@@ -56,6 +66,17 @@ class MyNotificationListenerService : NotificationListenerService() {
         if (packNameList.size<2) return
         val packName = packNameList[1]
 
+        if(packName =="example"){
+            Log.d("카카오 사진임티", extras?.get(Notification.EXTRA_PICTURE).toString())
+            val bitmap = extras?.get(Notification.EXTRA_PICTURE) as? Bitmap
+            CoroutineScope(Dispatchers.IO).launch {
+                bitmap?.let {
+                    EventBus.notifyTalkChanged(it)
+                }
+            }
+
+        }
+
         if(packName != "kakao" || sbn?.id!=2)
             return
 
@@ -70,7 +91,7 @@ class MyNotificationListenerService : NotificationListenerService() {
         if(chat=="null") chat = text.toString()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && notification?.hasImage() == true) {
-            Log.d("카카이 이미지 여부","있다")
+            Log.d("카카이 이미지 여부","이미지 있다")
             //val pictureIcon = extras?.get(Notification.EXTRA_PICTURE_ICON) as? Icon  //null
             //val verificationIcon = extras?.get(Notification.EXTRA_VERIFICATION_ICON)as? Icon  //null
             //val largeIconBig = extras?.get(Notification.EXTRA_LARGE_ICON_BIG)as? Icon  //null
@@ -78,10 +99,22 @@ class MyNotificationListenerService : NotificationListenerService() {
             Log.d("카카이 이미지 여부",extras?.get(Notification.EXTRA_TEMPLATE).toString()) //android.app.Notification$MessagingStyle
             Log.d("카카이 이미지 여부",NotificationCompat.MessagingStyle.extractMessagingStyleFromNotification(notification).toString())
             val style = MessagingStyle.extractMessagingStyleFromNotification(notification) as? MessagingStyle
-            val icon = style?.user?.icon as? Icon
-            CoroutineScope(Dispatchers.IO).launch {
-
+            val messages = style!!.messages
+            if (messages.isNotEmpty()) {
+                val lastMessage = messages.last()
+                Log.d("카카이 message",lastMessage.toString())
+                //EXTRA_LARGE_ICON_BIG EXTRA_PICTURE EXTRA_PICTURE_ICON
+                val myBitmap = lastMessage.extras.get(NotificationCompat.EXTRA_PICTURE)
+                val myBitmap2  = lastMessage.extras.get(NotificationCompat.EXTRA_PICTURE_ICON)
+                // Now you have the Bitmap "myBitmap" associated with the last message.
+                Log.d("카카이 이미지 여부",myBitmap.toString() + myBitmap2.toString())
             }
+
+            /*CoroutineScope(Dispatchers.IO).launch {
+                icon?.let {
+                    EventBus.notifyTalkChanged(it)
+                }
+            }*/
         }
         val now = LocalDateTime.now()
         if(chat=="이모티콘을 보냈습니다." || chat=="사진을 보냈습니다."){
@@ -109,6 +142,7 @@ class MyNotificationListenerService : NotificationListenerService() {
             talkItem?.let {
                 NotifyTalkEventBus.notifyTalkChanged(it)
             }
+
         }
 
     }
