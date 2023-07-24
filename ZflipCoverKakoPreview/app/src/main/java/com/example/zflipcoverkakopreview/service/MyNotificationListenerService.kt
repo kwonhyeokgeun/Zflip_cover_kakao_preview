@@ -1,5 +1,6 @@
 package com.example.zflipcoverkakopreview.service
 
+import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.Person
 import android.graphics.Bitmap
@@ -42,6 +43,7 @@ class MyNotificationListenerService : NotificationListenerService() {
 
 
 
+    @SuppressLint("RestrictedApi")
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         super.onNotificationPosted(sbn)
         val notification = sbn?.notification
@@ -88,6 +90,8 @@ class MyNotificationListenerService : NotificationListenerService() {
         if(chat=="null") chat = text.toString()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && notification?.hasImage() == true) {
+            val user = MessagingStyle.extractMessagingStyleFromNotification(notification)?.user
+
             Log.d("카카오 이미지 여부","이미지 있다")
             //val pictureIcon = extras?.get(Notification.EXTRA_PICTURE_ICON) as? Icon  //null
             //val verificationIcon = extras?.get(Notification.EXTRA_VERIFICATION_ICON)as? Icon  //null
@@ -95,17 +99,32 @@ class MyNotificationListenerService : NotificationListenerService() {
             //val bmp = extras?.get(Notification.EXTRA_PICTURE)  //null
             Log.d("카카오 이미지 여부",extras?.get(Notification.EXTRA_PICTURE).toString()) //android.app.Notification$MessagingStyle
             Log.d("카카오 style",NotificationCompat.MessagingStyle.extractMessagingStyleFromNotification(notification).toString())
-            val style = MessagingStyle.extractMessagingStyleFromNotification(notification) as? MessagingStyle
-            val messages = style!!.messages
-            if (messages.isNotEmpty()) {
-                val lastMessage = messages.last()
-                Log.d("카카오 message",lastMessage.toString())
-                //EXTRA_LARGE_ICON_BIG EXTRA_PICTURE EXTRA_PICTURE_ICON
-                val myBitmap = lastMessage.extras.get(NotificationCompat.EXTRA_PICTURE)
-                val myBitmap2  = lastMessage.extras.get(NotificationCompat.EXTRA_PICTURE_ICON)
-                // Now you have the Bitmap "myBitmap" associated with the last message.
-                Log.d("카카오 이미지 여부",myBitmap.toString() + myBitmap2.toString())
+            val style = MessagingStyle.extractMessagingStyleFromNotification(notification)
+            var keyset = extras?.keySet()
+            for(key in keyset!!){
+                Log.d("확인",key.toString())
             }
+
+
+            Log.d("",extras!!.get("android.hiddenConversationTitle").toString())
+
+
+            //val a=notiMessagingStyle.messages.size
+            //val b=notiCompatMessagingStyle.messages.size
+            //Log.d("카카오 a","${a} ${b}")
+
+
+
+
+
+
+            //val bm=NotificationCompat.getPeople(notification)[0].icon?.loadDrawable(this)?.toBitmap()
+            /*CoroutineScope(Dispatchers.IO).launch {
+                bm?.let {
+                    EventBusB.notifyTalkChanged(it)
+                }
+            }*/
+
 
             /*CoroutineScope(Dispatchers.IO).launch {
                 icon?.let {

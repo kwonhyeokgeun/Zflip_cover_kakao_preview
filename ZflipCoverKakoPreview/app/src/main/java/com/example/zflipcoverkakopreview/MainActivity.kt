@@ -74,7 +74,7 @@ class MainActivity : AppCompatActivity() , OnRoomClickListener{
             .setSmallIcon(R.drawable.profile)
             .setContentTitle(imageTitle)
             .setContentText(imageDescription)
-            .setLargeIcon(null)
+            .setLargeIcon(myBitmap)
             .setStyle(NotificationCompat.BigPictureStyle()
                 .bigPicture(myBitmap)
                 .bigLargeIcon(null))
@@ -139,8 +139,8 @@ class MainActivity : AppCompatActivity() , OnRoomClickListener{
 
         Log.d("카카오 알림","생성")
         Thread {
-            val imageTitle = "New Post"
-            val imageDescription = "Check out our latest post!"
+            val imageTitle = "title"
+            val imageDescription = "text"
             val myBitmap =
                 BitmapFactory.decodeResource(resources, R.drawable.logo) // 이미지 리소스를 불러옵니다.
             createNotification(this, imageTitle, imageDescription, myBitmap)
