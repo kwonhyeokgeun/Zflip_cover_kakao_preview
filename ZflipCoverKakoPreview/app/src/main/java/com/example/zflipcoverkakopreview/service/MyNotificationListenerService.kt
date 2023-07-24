@@ -85,66 +85,22 @@ class MyNotificationListenerService : NotificationListenerService() {
             isGroup=false
         }
 
-        //val chat = text.toString()
-        var chat = extras?.getCharSequence(Notification.EXTRA_BIG_TEXT).toString()
-        if(chat=="null") chat = text.toString()
+        val chat = text.toString()
+        /*var chat = extras?.getCharSequence(Notification.EXTRA_BIG_TEXT).toString()
+        if(chat=="null") chat = text.toString()*/
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && notification?.hasImage() == true) {
-            val user = MessagingStyle.extractMessagingStyleFromNotification(notification)?.user
+        //val user = MessagingStyle.extractMessagingStyleFromNotification(notification)?.user
 
-            Log.d("카카오 이미지 여부","이미지 있다")
-            //val pictureIcon = extras?.get(Notification.EXTRA_PICTURE_ICON) as? Icon  //null
-            //val verificationIcon = extras?.get(Notification.EXTRA_VERIFICATION_ICON)as? Icon  //null
-            //val largeIconBig = extras?.get(Notification.EXTRA_LARGE_ICON_BIG)as? Icon  //null
-            //val bmp = extras?.get(Notification.EXTRA_PICTURE)  //null
-            Log.d("카카오 이미지 여부",extras?.get(Notification.EXTRA_PICTURE).toString()) //android.app.Notification$MessagingStyle
-            Log.d("카카오 style",NotificationCompat.MessagingStyle.extractMessagingStyleFromNotification(notification).toString())
-            val style = MessagingStyle.extractMessagingStyleFromNotification(notification)
-            var keyset = extras?.keySet()
-            for(key in keyset!!){
-                Log.d("확인",key.toString())
-            }
+        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && notification?.hasImage() == true) { //이미지 있음
 
-
-            Log.d("",extras!!.get("android.hiddenConversationTitle").toString())
-
-
-            //val a=notiMessagingStyle.messages.size
-            //val b=notiCompatMessagingStyle.messages.size
-            //Log.d("카카오 a","${a} ${b}")
-
-
-
-
-
-
-            //val bm=NotificationCompat.getPeople(notification)[0].icon?.loadDrawable(this)?.toBitmap()
-            /*CoroutineScope(Dispatchers.IO).launch {
+            CoroutineScope(Dispatchers.IO).launch {
                 bm?.let {
                     EventBusB.notifyTalkChanged(it)
                 }
-            }*/
-
-
-            /*CoroutineScope(Dispatchers.IO).launch {
-                icon?.let {
-                    EventBus.notifyTalkChanged(it)
-                }
-            }*/
-        }
-        val now = LocalDateTime.now()
-        if(chat=="이모티콘을 보냈습니다." || chat=="사진을 보냈습니다."){
-            //val messagingStyle = NotificationCompat.MessagingStyle.extractMessagingStyleFromNotification(notification)
-            /*Log.d("카카오 사진임티", extras?.get(Notification.EXTRA_PICTURE).toString())
-            Log.d("카카오 사진임티", extras?.get(Notification.EXTRA_LARGE_ICON_BIG).toString())
-            Log.d("카카오 사진임티", extras?.get(Notification.EXTRA_BACKGROUND_IMAGE_URI).toString())
-            Log.d("카카오 사진임티", extras?.get(Notification.EXTRA_VERIFICATION_ICON).toString())*/
-
-            if (notification != null) {
-                ///val style = NotificationCompat.BigPictureStyle(notification)
             }
-            getPicture()
-        }
+
+        }*/
+        val now = LocalDateTime.now()
 
         //새톡 저장 및 이벤트 전송
         CoroutineScope(Dispatchers.IO).launch {
@@ -154,7 +110,7 @@ class MyNotificationListenerService : NotificationListenerService() {
                 val talkId = addTalk(room.id, userName!!, chat, now)
                 talkItem = talkDao.getTalkItemByTalkId(talkId)
             }
-            //NotifyRoomEventBus.notifyRoomChanged()
+            NotifyRoomEventBus.notifyRoomChanged()
             talkItem?.let {
                 NotifyTalkEventBus.notifyTalkChanged(it)
             }
@@ -220,23 +176,7 @@ class MyNotificationListenerService : NotificationListenerService() {
         }
     }
 
-    private fun getPicture(){
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            val messages = extras?.getParcelableArray(Notification.EXTRA_MESSAGES)
-            if (!messages.isNullOrEmpty()) {
-                val message = messages[0]
-                if (message is Bundle && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    val type=message.get("type")
-                    val person=message.get("sender")as? Person
 
-                    /*CoroutineScope(Dispatchers.IO).launch {
-                        icon?.let { EventBus.notifyTalkChanged(it) }
-                    }*/
-
-                }
-            }
-        }
-    }
 
     private fun getRoomBitmap() : Bitmap?{
         val roomIcon = extras?.get(Notification.EXTRA_LARGE_ICON) as? Icon
@@ -317,29 +257,7 @@ class MyNotificationListenerService : NotificationListenerService() {
         talkDao = appDB.talkDao()
         memberDao = appDB.memberDao()
 
-        /*Log.d("카카오 시작","시작")
-        CoroutineScope(Dispatchers.IO).launch {
-            var room: Room? = roomDao.getByRoomId(1)
-            if (room == null) {
-                roomDao.insert(Room(1, "\uD83D\uDE3A 설명서 \uD83D\uDE0A", "시작", LocalDateTime.now(), 1, null, LocalDateTime.now()))
-                memberDao.insert(Member(1, "\uD83D\uDE3A 설명서 \uD83D\uDE0A", null, LocalDateTime.now()))
-            } else {
-                roomDao.updateById(1, "시작", 1, LocalDateTime.now())
-            }
-            talkDao.insert(Talk(0, 1, 1L, "시작", LocalDateTime.now()))
-        }*/
+
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        /*CoroutineScope(Dispatchers.IO).launch {
-            var room: Room? = roomDao.getByRoomId(1)
-            if (room == null) {
-                roomDao.insert(Room(1, "\uD83D\uDE3A 설명서 \uD83D\uDE0A", "종료", LocalDateTime.now(), 1,null, LocalDateTime.now()))
-            } else {
-                roomDao.updateById(1, "종료", 1, LocalDateTime.now())
-            }
-            talkDao.insert(Talk(0, 1, 1, "종료", LocalDateTime.now()))
-        }*/
-    }
 }
