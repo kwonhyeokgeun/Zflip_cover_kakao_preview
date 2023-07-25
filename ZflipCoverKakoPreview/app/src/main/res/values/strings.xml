@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ZflipCoverKakoPreview</string>
+    <string name="app_name">ZflipCoverKakaoPreview</string>
     <string name="app_info_room">😺 설명서 😊</string>
     <string name="app_info1">#사용법#\n\n
 카톡알림을 미리보기가 가능해요.\n\n
@@ -15,5 +15,5 @@
     <string name="app_info3">#개발자 톡#\n\n
 플립4 유저인 제가 쓰려고 만든건데 혹시 쓰실 분 있을까봐 올렸어요.\n\n
 가볍게 커버 화면에서 카톡 몰래보고 싶을 때 사용하시면 됩니다.\n\n
-커버 화면에서 보기 편하게 글자는 키우고 잡다한 건 최대한 뺐어요.</string>
+커버 화면에서 보기 편하도록 글자 크기는 키우고 잡다한 건 최대한 뺐어요.</string>
 </resources>

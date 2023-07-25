@@ -12,7 +12,7 @@
         android:label="플립커버 카톡미리보기"
         android:roundIcon="@drawable/logo"
         android:supportsRtl="true"
-        android:theme="@style/Theme.ZflipCoverKakoPreview"
+        android:theme="@style/Theme.ZflipCoverKakaoPreview"
         tools:targetApi="31">
         <activity
             android:name=".RoomActivity"

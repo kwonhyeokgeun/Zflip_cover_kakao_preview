@@ -1,20 +1,12 @@
 package com.example.zflipcoverkakopreview
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import androidx.appcompat.app.AlertDialog
-import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.zflipcoverkakopreview.adapter.OnRoomClickListener
@@ -27,7 +19,6 @@ import com.example.zflipcoverkakopreview.db.database.AppDatabase
 import com.example.zflipcoverkakopreview.db.entity.Member
 import com.example.zflipcoverkakopreview.db.entity.Room
 import com.example.zflipcoverkakopreview.db.entity.Talk
-import com.example.zflipcoverkakopreview.eventbus.EventBusB
 import com.example.zflipcoverkakopreview.eventbus.NotifyRoomEventBus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -46,43 +37,9 @@ class MainActivity : AppCompatActivity() , OnRoomClickListener{
     private lateinit var adapter : RoomRecyclerViewAdapter
     private lateinit var scope : CoroutineScope
     private val eventBus = NotifyRoomEventBus
-    private val testBus = EventBusB
-    private val this_ = this
-
-    // 알림 채널을 생성하는 함수
-    fun createNotificationChannel(context: Context, channelId: String, channelName: String) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            val importance = NotificationManager.IMPORTANCE_DEFAULT
-            val channel = NotificationChannel(channelId, channelName, importance)
-            // 진동 패턴을 설정하지 않도록 합니다.
-            channel.vibrationPattern = null
-            notificationManager.createNotificationChannel(channel)
-        }
-    }
-
-    fun createNotification(context: Context, imageTitle: String, imageDescription: String, myBitmap: Bitmap) {
-        val CHANNEL_ID = "your_channel_id" // 알림 채널 ID를 지정합니다. 고유한 값으로 변경해야 합니다.
-        val notificationId = 11232132 // 알림 ID를 지정합니다. 고유한 값으로 변경해야 합니다.
-
-        // 알림 채널 생성
-        createNotificationChannel(context, CHANNEL_ID, "Your Channel Name")
+    //private val testBus = EventBusB
 
 
-        // 알림을 생성하는 코드
-        val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.profile)
-            .setContentTitle(imageTitle)
-            .setContentText(imageDescription)
-            .setLargeIcon(myBitmap)
-            .setStyle(NotificationCompat.BigPictureStyle()
-                .bigPicture(myBitmap)
-                .bigLargeIcon(null))
-            .build()
-
-        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(notificationId, notification)
-    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -136,15 +93,6 @@ class MainActivity : AppCompatActivity() , OnRoomClickListener{
 
     override fun onResume() {
         super.onResume()
-
-        Log.d("카카오 알림","생성")
-        Thread {
-            val imageTitle = "title"
-            val imageDescription = "text"
-            val myBitmap =
-                BitmapFactory.decodeResource(resources, R.drawable.logo) // 이미지 리소스를 불러옵니다.
-            createNotification(this, imageTitle, imageDescription, myBitmap)
-        }.start()
 
         scope = MainScope()
         scope.launch { //이벤트버스 구독 등록

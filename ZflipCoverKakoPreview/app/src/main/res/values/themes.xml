@@ -1,9 +1,9 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.ZflipCoverKakoPreview" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Base.Theme.ZflipCoverKakaoPreview" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
     </style>
 
-    <style name="Theme.ZflipCoverKakoPreview" parent="Base.Theme.ZflipCoverKakoPreview" />
+    <style name="Theme.ZflipCoverKakaoPreview" parent="Base.Theme.ZflipCoverKakaoPreview" />
 </resources>

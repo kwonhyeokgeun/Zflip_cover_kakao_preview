@@ -6,7 +6,6 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.zflipcoverkakopreview.db.entity.Member
-import com.example.zflipcoverkakopreview.db.entity.Room
 import java.time.LocalDateTime
 
 @Dao

@@ -72,7 +72,8 @@
                 app:layout_constraintStart_toStartOf="@+id/cl_talk"
                 app:layout_constraintTop_toTopOf="@+id/cl_text"
                 tools:ignore="NotSibling"
-
+                android:linksClickable="true"
+                android:autoLink="web"
                 />
         </androidx.constraintlayout.widget.ConstraintLayout>
 

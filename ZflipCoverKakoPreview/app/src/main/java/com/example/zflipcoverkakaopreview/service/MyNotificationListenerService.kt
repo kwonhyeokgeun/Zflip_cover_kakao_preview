@@ -10,8 +10,6 @@ import android.os.Bundle
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationCompat.MessagingStyle
 import androidx.core.graphics.drawable.toBitmap
 import com.example.zflipcoverkakopreview.db.dao.MemberDao
 import com.example.zflipcoverkakopreview.db.dao.RoomDao
@@ -107,7 +105,7 @@ class MyNotificationListenerService : NotificationListenerService() {
             var talkItem : TalkItem? = null
             appDB.runInTransaction {
                 var room = getUpdatedRoom(roomName, chat, now)
-                val talkId = addTalk(room.id, userName!!, chat, now)
+                val talkId = addTalk(sbn, room.id, userName!!, chat, now)
                 talkItem = talkDao.getTalkItemByTalkId(talkId)
             }
             NotifyRoomEventBus.notifyRoomChanged()
@@ -150,26 +148,23 @@ class MyNotificationListenerService : NotificationListenerService() {
         return room
     }
 
-    private fun addTalk(roomId : Long, memberName : String, chat : String, now : LocalDateTime):Long{
-        val memberId = getMemberId(memberName)
+    private fun addTalk(sbn: StatusBarNotification?,roomId : Long, memberName : String, chat : String, now : LocalDateTime):Long{
+        val memberId = getMemberId(sbn, memberName)
         val talk = Talk(0, roomId, memberId, chat, now)
 
         return talkDao.insert(talk)
     }
 
-    private fun getMemberId(memberName: String) : Long{
+    private fun getMemberId(sbn: StatusBarNotification?, memberName: String) : Long{
         val member =  memberDao.getByName(memberName)
         if(member==null){ //첫맴버
-            val profileImg = getProfileBitmap(isGroup)
+            val profileImg = getProfileBitmap(sbn)
             return memberDao.insert(Member(0,memberName, profileImg, LocalDateTime.now()))
         }
         else{ //기존맴버
-            //val profile =getProfileBitmap(isGroup)
-            //Log.d("카카오 픽셀","${memberName}  ${profile?.getPixel(50,50)} ${profile?.getPixel(150,55)} ${profile?.getPixel(55,150)} ${profile?.getPixel(150,150)}")
-            //Log.d("카카오 넓이", profile?.width.toString())
             if(member.profileImg==null || member.imgRegDt.isBefore(LocalDateTime.now().minusDays(1))){
                 //프사 업데이트
-                val profileImg = getProfileBitmap(isGroup)
+                val profileImg = getProfileBitmap(sbn)
                 memberDao.updateImgById(member.id, profileImg, LocalDateTime.now())
             }
             return member.id
@@ -188,11 +183,10 @@ class MyNotificationListenerService : NotificationListenerService() {
         return roomIcon.loadDrawable(this)?.toBitmap()
     }
 
-    private fun getProfileBitmap(isGroup : Boolean) : Bitmap?{
-        //if(!isGroup) return getRoomBitmap()
+    private fun getProfileBitmap(sbn: StatusBarNotification?) : Bitmap?{
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                val messages = extras?.getParcelableArray(Notification.EXTRA_MESSAGES)
+                val messages = sbn?.notification?.extras?.getParcelableArray(Notification.EXTRA_MESSAGES)
                 if (!messages.isNullOrEmpty()) {
                     val message = messages[0]
                     if (message is Bundle && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
