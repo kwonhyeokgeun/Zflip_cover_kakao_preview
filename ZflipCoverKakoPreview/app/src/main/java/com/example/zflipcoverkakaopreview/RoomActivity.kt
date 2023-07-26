@@ -88,10 +88,13 @@ class RoomActivity : AppCompatActivity() {
         if(talkItemList.size<=0) return
         Thread{
             val lastId = talkItemList[talkItemList.size-1].id
-            talkItemList.addAll(talkDao.getNewTalkItem(roomId, lastId))
-            runOnUiThread {
-                adapter.notifyDataSetChanged()
-                binding.tvNew.visibility = View.VISIBLE
+            val newTalkItemList = talkDao.getNewTalkItem(roomId, lastId)
+            if(newTalkItemList.size>0){ //새톡있으면
+                talkItemList.addAll(newTalkItemList)
+                runOnUiThread {
+                    adapter.notifyDataSetChanged()
+                    binding.tvNew.visibility = View.VISIBLE
+                }
             }
         }.start()
 
