@@ -55,7 +55,7 @@ class RoomActivity : AppCompatActivity() {
 
     }
     override fun onStop(){
-        //Log.d("카카오 나감",roomId.toString())
+        //톡 읽음 처리
         Thread {
             roomDao.setReadById(roomId)
         }.start()
@@ -91,8 +91,10 @@ class RoomActivity : AppCompatActivity() {
             talkItemList.addAll(talkDao.getNewTalkItem(roomId, lastId))
             runOnUiThread {
                 adapter.notifyDataSetChanged()
+                binding.tvNew.visibility = View.VISIBLE
             }
         }.start()
+
     }
 
     override fun onPause() {
