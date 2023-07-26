@@ -80,6 +80,8 @@ class RoomActivity : AppCompatActivity() {
                 }
             }
         }
+
+        //그새 새로온 톡 추가
         updateTalkList()
 
     }
