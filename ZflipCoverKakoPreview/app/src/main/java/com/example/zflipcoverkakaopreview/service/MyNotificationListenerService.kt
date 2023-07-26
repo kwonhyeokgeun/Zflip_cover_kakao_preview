@@ -1,16 +1,28 @@
 package com.example.zflipcoverkakopreview.service
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.app.Person
+import android.content.Context
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Icon
 import android.os.Build
 import android.os.Bundle
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
+import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.graphics.drawable.IconCompat
 import androidx.core.graphics.drawable.toBitmap
+import com.example.zflipcoverkakopreview.R
 import com.example.zflipcoverkakopreview.db.dao.MemberDao
 import com.example.zflipcoverkakopreview.db.dao.RoomDao
 import com.example.zflipcoverkakopreview.db.dao.TalkDao
@@ -35,10 +47,18 @@ class MyNotificationListenerService : NotificationListenerService() {
     private lateinit var appDB : AppDatabase
     private var extras : Bundle? = null
     private var isGroup:Boolean = false
+
+    private val this_=this
+    val SUMMARY_ID = 0
+    val GROUP_KEY = "com.example.zflipkakaopreview"
+    val CHANNEL_ID="asdfasdf"
+    val CHANNEL_NAME = "dfdfdf"
+    var notifiPermission = false
+
+
     override fun onListenerConnected() {
         super.onListenerConnected()
     }
-
 
 
     @SuppressLint("RestrictedApi")
@@ -61,7 +81,7 @@ class MyNotificationListenerService : NotificationListenerService() {
         if (packNameList.size<2) return
         val packName = packNameList[1]
 
-        if(packName =="example"){
+        /*if(packName =="example"){
             Log.d("카카오 사진임티", extras?.get(Notification.EXTRA_PICTURE).toString())
             val bitmap = extras?.get(Notification.EXTRA_PICTURE) as? Bitmap
             CoroutineScope(Dispatchers.IO).launch {
@@ -69,10 +89,7 @@ class MyNotificationListenerService : NotificationListenerService() {
                     EventBusB.notifyTalkChanged(it)
                 }
             }
-
-
-
-        }
+        }*/
 
         if(packName != "kakao" || sbn?.id!=2)
             return
@@ -103,14 +120,20 @@ class MyNotificationListenerService : NotificationListenerService() {
         //새톡 저장 및 이벤트 전송
         CoroutineScope(Dispatchers.IO).launch {
             var talkItem : TalkItem? = null
+            var room : Room? = null
             appDB.runInTransaction {
-                var room = getUpdatedRoom(roomName, chat, now)
-                val talkId = addTalk(sbn, room.id, userName!!, chat, now)
+                room = getUpdatedRoom(roomName, chat, now)
+                val talkId = addTalk(sbn, room!!.id, userName!!, chat, now)
                 talkItem = talkDao.getTalkItemByTalkId(talkId)
             }
             NotifyRoomEventBus.notifyRoomChanged()
             talkItem?.let {
                 NotifyTalkEventBus.notifyTalkChanged(it)
+            }
+            if(notifiPermission ){
+                //알림킨 방이면 조건 추가하기
+
+                addNoti(sbn, talkItem!!.id, room!!.roomName!!, talkItem!!.name!!, talkItem!!.chat!!)
             }
 
         }
@@ -202,6 +225,25 @@ class MyNotificationListenerService : NotificationListenerService() {
         }
         return null
     }
+    private fun getProfileIcon(sbn: StatusBarNotification?) : Icon?{
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                val messages = sbn?.notification?.extras?.getParcelableArray(Notification.EXTRA_MESSAGES)
+                if (!messages.isNullOrEmpty()) {
+                    val message = messages[0]
+                    if (message is Bundle && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        val person = message.get("sender_person") as? Person
+                        val profileIcon = person?.icon
+                        return profileIcon
+                    }
+                }
+            }
+        }catch (e : Exception){
+            Log.d("카카오 프사에러", e.toString())
+            return null
+        }
+        return null
+    }
 
 
     override fun onNotificationRemoved(sbn: StatusBarNotification?, rankingMap: RankingMap?) {
@@ -250,7 +292,151 @@ class MyNotificationListenerService : NotificationListenerService() {
         roomDao = appDB.roomDao()
         talkDao = appDB.talkDao()
         memberDao = appDB.memberDao()
+        if (ActivityCompat.checkSelfPermission(this_, Manifest.permission.POST_NOTIFICATIONS)
+            == PackageManager.PERMISSION_GRANTED
+        ) {
+            notifiPermission = true
+            // 알림 채널 생성
+            createNotificationChannel(this, CHANNEL_ID, CHANNEL_NAME)
+            //makeNoti()
+        }
 
+
+    }
+
+    fun createNotificationChannel(context: Context, channelId: String, channelName: String) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel(channelId, channelName, importance)
+            // 진동 패턴을 설정하지 않도록 합니다.
+            channel.vibrationPattern = null
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
+    fun makeNoti(){
+        val largeIcon = BitmapFactory.decodeResource(getResources(), R.drawable.profile);
+        /*val newMessageNotification1 = NotificationCompat.Builder(this, CHANNEL_ID)
+            .setSmallIcon(R.drawable.profile)
+            .setContentTitle("email 1 title")
+            .setContentText("email 1 text")
+            .setGroup(GROUP_KEY)
+            .build()
+
+        val newMessageNotification2 = NotificationCompat.Builder(this, CHANNEL_ID)
+            .setSmallIcon(R.drawable.profile)
+            .setContentTitle("email 2 title")
+            .setContentText("email 2 text")
+            .setGroup(GROUP_KEY)
+            .build()*/
+
+
+
+        val summaryNotification = NotificationCompat.Builder(this, CHANNEL_ID)
+            .setContentTitle("요약 title")
+            .setContentText("요약 text")
+            .setSmallIcon(R.drawable.baseline_wysiwyg_24)
+            .setStyle(
+                NotificationCompat.InboxStyle()
+                //.setBigContentTitle("빅 타이틀")
+                .setSummaryText(""))
+            .setGroup(GROUP_KEY)
+            .setGroupSummary(true)
+            .build()
+
+        NotificationManagerCompat.from(this).apply {
+            if (ActivityCompat.checkSelfPermission(
+                    this_,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+
+                return
+            }
+            notify(SUMMARY_ID, summaryNotification)
+        }
+    }
+
+    fun addNoti(sbn: StatusBarNotification?, talkId : Long, roomName : String, userName : String, chat : String){
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notifications = notificationManager.getActiveNotifications()
+        var haveNoti = false
+        for(a in notifications){
+            val lst = a.groupKey.split("|")
+            if(lst.size>1){
+                val groupKey = lst[1]
+                if(groupKey=="com.example.zflipcoverkakopreview"){
+                    haveNoti=true
+                    break
+                }
+            }
+        }
+
+
+
+        if(!haveNoti){ //처음이면
+            val summaryNotification = NotificationCompat.Builder(this, CHANNEL_ID)
+                .setContentTitle("요약 title")
+                .setContentText("요약 text")
+                .setSmallIcon(R.drawable.baseline_wysiwyg_24)
+                .setStyle(
+                    NotificationCompat.InboxStyle()
+                        //.setBigContentTitle("빅 타이틀")
+                        .setSummaryText(""))
+                .setGroup(GROUP_KEY)
+                .setGroupSummary(true)
+                .build()
+            val defMessageNotification = NotificationCompat.Builder(this, CHANNEL_ID)
+                .setSmallIcon(R.drawable.profile)
+                .setContentTitle("")
+                .setContentText("")
+                .setGroup(GROUP_KEY)
+                .build()
+
+            NotificationManagerCompat.from(this).apply {
+                if (ActivityCompat.checkSelfPermission(
+                        this_,
+                        Manifest.permission.POST_NOTIFICATIONS
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    return
+                }
+
+                notify(SUMMARY_ID, summaryNotification)
+                notify(System.currentTimeMillis().toInt()-1, defMessageNotification)
+
+
+            }
+        }
+
+        var title =if(roomName==userName)
+                            userName
+                        else {
+                            val roomShortName = if(roomName.length>7) roomName.substring(0,5)+".." else roomName
+                            "${userName}[${roomShortName}]"
+                        }
+        val profileBitmap=getProfileBitmap(sbn)
+        if(profileBitmap!=null){
+            val profileIcon = IconCompat.createWithAdaptiveBitmap(profileBitmap)
+            val newMessageNotification = NotificationCompat.Builder(this, CHANNEL_ID)
+                .setSmallIcon(profileIcon)
+                .setContentTitle(title)
+                .setContentText(chat)
+                .setGroup(GROUP_KEY)
+                .build()
+            val this_ = this
+            NotificationManagerCompat.from(this).apply {
+                if (ActivityCompat.checkSelfPermission(
+                        this_,
+                        Manifest.permission.POST_NOTIFICATIONS
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    return
+                }
+
+                notify(talkId.toInt(), newMessageNotification)
+            }
+        }
 
     }
 

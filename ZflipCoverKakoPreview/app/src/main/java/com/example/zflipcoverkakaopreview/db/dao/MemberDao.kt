@@ -21,4 +21,7 @@ interface MemberDao {
 
     @Query("DELETE FROM Member WHERE img_reg_dt < :daysAgo")
     fun deleteOldMember(daysAgo: LocalDateTime)
+
+    @Query("SELECT Member.profile_img  FROM Member INNER JOIN Talk ON Talk.member_id = Member.id WHERE Talk.id =:talkId")
+    fun getProfileImagByTalkId(talkId : Long) : Bitmap?
 }

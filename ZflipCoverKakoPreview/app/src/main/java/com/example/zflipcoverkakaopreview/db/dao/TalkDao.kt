@@ -1,5 +1,6 @@
 package com.example.zflipcoverkakopreview.db.dao
 
+import android.graphics.Bitmap
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
@@ -30,4 +31,5 @@ interface TalkDao {
 
     @Query("SELECT Talk.*, Member.name, Member.profile_img FROM Talk INNER JOIN Member ON Talk.member_id = Member.id WHERE Talk.room_id = :roomId")
     fun getTalkItemsByRoomId(roomId : Long) : List<TalkItem>
+
 }

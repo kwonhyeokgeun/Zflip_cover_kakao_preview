@@ -15,10 +15,10 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
-        android:visibility="gone"
+        android:visibility="visible"
         android:id="@+id/iv_test"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="50dp"
         android:src="@drawable/baseline_arrow_circle_down_24"
         app:layout_constraintBottom_toBottomOf="parent" />
 

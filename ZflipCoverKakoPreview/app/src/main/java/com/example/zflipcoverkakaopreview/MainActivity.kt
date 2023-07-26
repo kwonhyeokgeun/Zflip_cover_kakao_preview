@@ -1,12 +1,21 @@
 package com.example.zflipcoverkakopreview
 
+import android.Manifest
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.BitmapFactory
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import androidx.appcompat.app.AlertDialog
+import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.zflipcoverkakopreview.adapter.OnRoomClickListener
@@ -40,6 +49,7 @@ class MainActivity : AppCompatActivity() , OnRoomClickListener{
     //private val testBus = EventBusB
 
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -60,6 +70,8 @@ class MainActivity : AppCompatActivity() , OnRoomClickListener{
 
         setRoomRecyclerView()
         deleteOldTalk()
+
+
 
     }
 
