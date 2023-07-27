@@ -225,25 +225,6 @@ class MyNotificationListenerService : NotificationListenerService() {
         }
         return null
     }
-    private fun getProfileIcon(sbn: StatusBarNotification?) : Icon?{
-        try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                val messages = sbn?.notification?.extras?.getParcelableArray(Notification.EXTRA_MESSAGES)
-                if (!messages.isNullOrEmpty()) {
-                    val message = messages[0]
-                    if (message is Bundle && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                        val person = message.get("sender_person") as? Person
-                        val profileIcon = person?.icon
-                        return profileIcon
-                    }
-                }
-            }
-        }catch (e : Exception){
-            Log.d("카카오 프사에러", e.toString())
-            return null
-        }
-        return null
-    }
 
 
     override fun onNotificationRemoved(sbn: StatusBarNotification?, rankingMap: RankingMap?) {
