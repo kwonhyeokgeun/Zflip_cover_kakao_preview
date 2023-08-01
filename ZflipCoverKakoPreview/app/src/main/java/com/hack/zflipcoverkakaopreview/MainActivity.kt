@@ -1,4 +1,4 @@
-package com.example.zflipcoverkakopreview
+package com.hack.zflipcoverkakopreview
 
 import android.content.DialogInterface
 import android.content.Intent
@@ -9,17 +9,17 @@ import android.os.Looper
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.NotificationManagerCompat
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.zflipcoverkakopreview.adapter.OnRoomClickListener
-import com.example.zflipcoverkakopreview.adapter.RoomRecyclerViewAdapter
-import com.example.zflipcoverkakopreview.databinding.ActivityMainBinding
-import com.example.zflipcoverkakopreview.db.dao.MemberDao
-import com.example.zflipcoverkakopreview.db.dao.RoomDao
-import com.example.zflipcoverkakopreview.db.dao.TalkDao
-import com.example.zflipcoverkakopreview.db.database.AppDatabase
-import com.example.zflipcoverkakopreview.db.entity.Member
-import com.example.zflipcoverkakopreview.db.entity.Room
-import com.example.zflipcoverkakopreview.db.entity.Talk
-import com.example.zflipcoverkakopreview.eventbus.NotifyRoomEventBus
+import com.hack.zflipcoverkakopreview.adapter.OnRoomClickListener
+import com.hack.zflipcoverkakopreview.adapter.RoomRecyclerViewAdapter
+import com.hack.zflipcoverkakopreview.databinding.ActivityMainBinding
+import com.hack.zflipcoverkakopreview.db.dao.MemberDao
+import com.hack.zflipcoverkakopreview.db.dao.RoomDao
+import com.hack.zflipcoverkakopreview.db.dao.TalkDao
+import com.hack.zflipcoverkakopreview.db.database.AppDatabase
+import com.hack.zflipcoverkakopreview.db.entity.Member
+import com.hack.zflipcoverkakopreview.db.entity.Room
+import com.hack.zflipcoverkakopreview.db.entity.Talk
+import com.hack.zflipcoverkakopreview.eventbus.NotifyRoomEventBus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope

@@ -1,4 +1,4 @@
-package com.example.zflipcoverkakopreview.eventbus
+package com.hack.zflipcoverkakopreview.eventbus
 
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow

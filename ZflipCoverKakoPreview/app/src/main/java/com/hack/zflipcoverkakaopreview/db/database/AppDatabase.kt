@@ -1,17 +1,17 @@
-package com.example.zflipcoverkakopreview.db.database
+package com.hack.zflipcoverkakopreview.db.database
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.example.zflipcoverkakopreview.db.converter.BitmapConverter
-import com.example.zflipcoverkakopreview.db.converter.LocalDataTimeConverter
-import com.example.zflipcoverkakopreview.db.dao.MemberDao
-import com.example.zflipcoverkakopreview.db.dao.RoomDao
-import com.example.zflipcoverkakopreview.db.dao.TalkDao
-import com.example.zflipcoverkakopreview.db.entity.Member
-import com.example.zflipcoverkakopreview.db.entity.Room
-import com.example.zflipcoverkakopreview.db.entity.Talk
+import com.hack.zflipcoverkakopreview.db.converter.BitmapConverter
+import com.hack.zflipcoverkakopreview.db.converter.LocalDataTimeConverter
+import com.hack.zflipcoverkakopreview.db.dao.MemberDao
+import com.hack.zflipcoverkakopreview.db.dao.RoomDao
+import com.hack.zflipcoverkakopreview.db.dao.TalkDao
+import com.hack.zflipcoverkakopreview.db.entity.Member
+import com.hack.zflipcoverkakopreview.db.entity.Room
+import com.hack.zflipcoverkakopreview.db.entity.Talk
 
 
 @Database(entities = [Talk::class, Room::class, Member::class], version = 1)

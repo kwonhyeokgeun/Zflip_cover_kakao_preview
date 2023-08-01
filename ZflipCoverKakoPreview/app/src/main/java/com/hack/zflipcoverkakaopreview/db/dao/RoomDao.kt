@@ -1,11 +1,11 @@
-package com.example.zflipcoverkakopreview.db.dao
+package com.hack.zflipcoverkakopreview.db.dao
 
 import android.graphics.Bitmap
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.example.zflipcoverkakopreview.db.entity.Room
+import com.hack.zflipcoverkakopreview.db.entity.Room
 import java.time.LocalDateTime
 
 @Dao

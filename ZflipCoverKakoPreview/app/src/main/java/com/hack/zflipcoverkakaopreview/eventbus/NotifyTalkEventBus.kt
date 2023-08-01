@@ -1,6 +1,6 @@
-package com.example.zflipcoverkakopreview.eventbus
+package com.hack.zflipcoverkakopreview.eventbus
 
-import com.example.zflipcoverkakopreview.db.entity.TalkItem
+import com.hack.zflipcoverkakopreview.db.entity.TalkItem
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 

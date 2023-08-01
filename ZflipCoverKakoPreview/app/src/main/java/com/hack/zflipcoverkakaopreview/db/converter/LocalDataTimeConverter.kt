@@ -1,4 +1,4 @@
-package com.example.zflipcoverkakopreview.db.converter
+package com.hack.zflipcoverkakopreview.db.converter
 
 import androidx.room.TypeConverter
 import java.time.LocalDateTime

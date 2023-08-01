@@ -1,4 +1,4 @@
-package com.example.zflipcoverkakopreview.eventbus
+package com.hack.zflipcoverkakopreview.eventbus
 
 import android.graphics.Bitmap
 import kotlinx.coroutines.flow.MutableSharedFlow

@@ -1,4 +1,4 @@
-package com.example.zflipcoverkakopreview.db.entity
+package com.hack.zflipcoverkakopreview.db.entity
 
 import android.graphics.Bitmap
 import androidx.room.ColumnInfo

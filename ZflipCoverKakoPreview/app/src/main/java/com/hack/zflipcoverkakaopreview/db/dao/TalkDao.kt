@@ -1,10 +1,10 @@
-package com.example.zflipcoverkakopreview.db.dao
+package com.hack.zflipcoverkakopreview.db.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
-import com.example.zflipcoverkakopreview.db.entity.Talk
-import com.example.zflipcoverkakopreview.db.entity.TalkItem
+import com.hack.zflipcoverkakopreview.db.entity.Talk
+import com.hack.zflipcoverkakopreview.db.entity.TalkItem
 import java.time.LocalDateTime
 
 @Dao

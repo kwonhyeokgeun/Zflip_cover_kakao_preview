@@ -1,4 +1,4 @@
-package com.example.zflipcoverkakopreview.db.converter
+package com.hack.zflipcoverkakopreview.db.converter
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory

@@ -1,12 +1,12 @@
-package com.example.zflipcoverkakopreview.adapter
+package com.hack.zflipcoverkakopreview.adapter
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.zflipcoverkakopreview.R
-import com.example.zflipcoverkakopreview.databinding.ItemTalkBinding
-import com.example.zflipcoverkakopreview.db.entity.TalkItem
+import com.hack.zflipcoverkakopreview.R
+import com.hack.zflipcoverkakopreview.databinding.ItemTalkBinding
+import com.hack.zflipcoverkakopreview.db.entity.TalkItem
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 

@@ -1,13 +1,13 @@
-package com.example.zflipcoverkakopreview.adapter
+package com.hack.zflipcoverkakopreview.adapter
 
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.zflipcoverkakopreview.R
-import com.example.zflipcoverkakopreview.databinding.ItemRoomBinding
-import com.example.zflipcoverkakopreview.db.entity.Room
+import com.hack.zflipcoverkakopreview.R
+import com.hack.zflipcoverkakopreview.databinding.ItemRoomBinding
+import com.hack.zflipcoverkakopreview.db.entity.Room
 import java.time.LocalDateTime
 
 class RoomRecyclerViewAdapter(private val roomList :ArrayList<Room>, private val roomClickListener: OnRoomClickListener) : RecyclerView.Adapter<RoomRecyclerViewAdapter.MyViewHolder>() {

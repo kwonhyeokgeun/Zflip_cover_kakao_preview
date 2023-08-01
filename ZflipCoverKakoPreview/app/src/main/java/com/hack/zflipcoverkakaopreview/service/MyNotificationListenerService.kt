@@ -1,4 +1,4 @@
-package com.example.zflipcoverkakopreview.service
+package com.hack.zflipcoverkakopreview.service
 
 import android.annotation.SuppressLint
 import android.app.Notification
@@ -11,17 +11,17 @@ import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
 import androidx.core.graphics.drawable.toBitmap
-import com.example.zflipcoverkakopreview.db.dao.MemberDao
-import com.example.zflipcoverkakopreview.db.dao.RoomDao
-import com.example.zflipcoverkakopreview.db.dao.TalkDao
-import com.example.zflipcoverkakopreview.db.database.AppDatabase
-import com.example.zflipcoverkakopreview.db.entity.Member
-import com.example.zflipcoverkakopreview.db.entity.Room
-import com.example.zflipcoverkakopreview.db.entity.Talk
-import com.example.zflipcoverkakopreview.db.entity.TalkItem
-import com.example.zflipcoverkakopreview.eventbus.EventBusB
-import com.example.zflipcoverkakopreview.eventbus.NotifyRoomEventBus
-import com.example.zflipcoverkakopreview.eventbus.NotifyTalkEventBus
+import com.hack.zflipcoverkakopreview.db.dao.MemberDao
+import com.hack.zflipcoverkakopreview.db.dao.RoomDao
+import com.hack.zflipcoverkakopreview.db.dao.TalkDao
+import com.hack.zflipcoverkakopreview.db.database.AppDatabase
+import com.hack.zflipcoverkakopreview.db.entity.Member
+import com.hack.zflipcoverkakopreview.db.entity.Room
+import com.hack.zflipcoverkakopreview.db.entity.Talk
+import com.hack.zflipcoverkakopreview.db.entity.TalkItem
+import com.hack.zflipcoverkakopreview.eventbus.EventBusB
+import com.hack.zflipcoverkakopreview.eventbus.NotifyRoomEventBus
+import com.hack.zflipcoverkakopreview.eventbus.NotifyTalkEventBus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

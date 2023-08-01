@@ -1,4 +1,4 @@
-package com.example.zflipcoverkakopreview
+package com.hack.zflipcoverkakopreview
 
 import org.junit.Test
 

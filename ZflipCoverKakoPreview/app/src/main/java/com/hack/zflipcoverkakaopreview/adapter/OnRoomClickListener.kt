@@ -1,4 +1,4 @@
-package com.example.zflipcoverkakopreview.adapter
+package com.hack.zflipcoverkakopreview.adapter
 
 interface OnRoomClickListener {
     fun onClick(id : Long, newCnt : Int)

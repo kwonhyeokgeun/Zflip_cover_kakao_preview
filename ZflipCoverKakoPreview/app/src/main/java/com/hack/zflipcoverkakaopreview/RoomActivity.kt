@@ -1,17 +1,17 @@
-package com.example.zflipcoverkakopreview
+package com.hack.zflipcoverkakopreview
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.zflipcoverkakopreview.adapter.TalkRecyclerViewAdapter
-import com.example.zflipcoverkakopreview.databinding.ActivityRoomBinding
-import com.example.zflipcoverkakopreview.db.dao.RoomDao
-import com.example.zflipcoverkakopreview.db.dao.TalkDao
-import com.example.zflipcoverkakopreview.db.database.AppDatabase
-import com.example.zflipcoverkakopreview.db.entity.TalkItem
-import com.example.zflipcoverkakopreview.eventbus.NotifyTalkEventBus
+import com.hack.zflipcoverkakopreview.adapter.TalkRecyclerViewAdapter
+import com.hack.zflipcoverkakopreview.databinding.ActivityRoomBinding
+import com.hack.zflipcoverkakopreview.db.dao.RoomDao
+import com.hack.zflipcoverkakopreview.db.dao.TalkDao
+import com.hack.zflipcoverkakopreview.db.database.AppDatabase
+import com.hack.zflipcoverkakopreview.db.entity.TalkItem
+import com.hack.zflipcoverkakopreview.eventbus.NotifyTalkEventBus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
