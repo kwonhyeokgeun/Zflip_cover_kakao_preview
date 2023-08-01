@@ -34,6 +34,7 @@
         android:text="이름이름"
         android:textSize="17dp"
         android:maxLines="1"
+
         />
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -49,43 +50,44 @@
         >
 
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/cl_text"
+        <TextView
+            android:id="@+id/tv_chat"
+            app:layout_constrainedWidth="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingVertical="7dp"
+            app:layout_constraintEnd_toStartOf="@+id/tv_time"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/cl_talk"
+            app:layout_constraintTop_toBottomOf="@+id/tv_name"
+            tools:ignore="NotSibling"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintHorizontal_chainStyle="packed"
 
-            >
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/chat_shape"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="5dp"
 
-            <TextView
-                android:id="@+id/tv_chat"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/chat_shape"
-                android:maxWidth="275dp"
-                android:paddingHorizontal="10dp"
-                android:paddingVertical="5dp"
-                android:text="ㅇㅇㅇddddddddddddddddddddddddddddddd"
-                android:textSize="22dp"
-                app:layout_constraintStart_toStartOf="@+id/cl_talk"
-                app:layout_constraintTop_toTopOf="@+id/cl_text"
-                tools:ignore="NotSibling"
-                android:linksClickable="true"
-                android:autoLink="web"
-                />
-        </androidx.constraintlayout.widget.ConstraintLayout>
+            android:text="ㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇ"
+            android:textSize="22dp"
+            android:linksClickable="true"
+            android:autoLink="web"
+
+            />
+
 
         <TextView
             android:id="@+id/tv_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="@+id/cl_talk"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/tv_chat"
             android:layout_marginBottom="8dp"
             android:text="오전 11:22"
             android:textSize="11dp"
-            app:layout_constraintBottom_toBottomOf="@+id/cl_talk"
-            app:layout_constraintStart_toEndOf="@+id/cl_text" />
+            android:paddingLeft="3dp"
+             />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
