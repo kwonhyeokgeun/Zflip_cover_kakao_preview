@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace 'com.hack.zflipcoverkakopreview'
+    namespace 'com.kun.zflipcoverkakopreview'
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.hack.zflipcoverkakopreview"
+        applicationId "com.kun.zflipcoverkakopreview"
         minSdk 26
         targetSdk 33
         versionCode 1
