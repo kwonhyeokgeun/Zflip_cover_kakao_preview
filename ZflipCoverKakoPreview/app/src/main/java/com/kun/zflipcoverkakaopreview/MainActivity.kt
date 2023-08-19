@@ -132,7 +132,7 @@ class MainActivity : AppCompatActivity() , OnRoomClickListener{
         }
     }
 
-    private fun updateRoomRecyclerView(){
+    private fun updateRoomRecyclerView(){ //
         Thread {
             roomList.clear()
             roomList.addAll(roomDao.getAll())
